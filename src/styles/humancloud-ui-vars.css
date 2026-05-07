@@ -1,0 +1,83 @@
+/*
+ * Humancloud UI CSS variables only.
+ */
+
+:root {
+  --hc-primary-100: #f0f0fb;
+  --hc-primary-200: #c8c4f1;
+  --hc-primary-300: #a099e7;
+  --hc-primary-400: #7a6edb;
+  --hc-primary-500: #5542ca;
+  --hc-primary-600: #35268b;
+  --hc-primary-700: #18104a;
+
+  --hc-secondary-100: #fbdbb4;
+  --hc-secondary-200: #e7af45;
+  --hc-secondary-300: #b88b35;
+  --hc-secondary-400: #8b6826;
+  --hc-secondary-500: #614718;
+  --hc-secondary-600: #39290a;
+  --hc-secondary-700: #180f02;
+
+  --hc-tertiary-100: #ccfdbc;
+  --hc-tertiary-200: #79df43;
+  --hc-tertiary-300: #60b434;
+  --hc-tertiary-400: #498b26;
+  --hc-tertiary-500: #336419;
+  --hc-tertiary-600: #1e3f0c;
+  --hc-tertiary-700: #0b1e03;
+
+  --hc-grey-100: #f1f1f1;
+  --hc-grey-200: #c9c9cb;
+  --hc-grey-300: #a2a2a6;
+  --hc-grey-400: #7c7c83;
+  --hc-grey-500: #595961;
+  --hc-grey-600: #38383e;
+  --hc-grey-700: #1a1a1e;
+
+  --hc-color-background: #ffffff;
+  --hc-color-foreground: #1a1a1e;
+  --hc-color-primary: #5542ca;
+  --hc-color-primary-hover: #35268b;
+  --hc-color-primary-fg: #ffffff;
+  --hc-color-secondary: #e7af45;
+  --hc-color-secondary-hover: #b88b35;
+  --hc-color-secondary-fg: #1a1a1e;
+  --hc-color-muted: #f1f1f1;
+  --hc-color-muted-fg: #595961;
+  --hc-color-border: #c9c9cb;
+  --hc-color-input: #c9c9cb;
+  --hc-color-ring: #5542ca;
+  --hc-color-destructive: #dc2626;
+  --hc-color-destructive-fg: #ffffff;
+  --hc-color-success: #336419;
+  --hc-color-success-fg: #ffffff;
+  --hc-color-warning: #e7af45;
+  --hc-color-warning-fg: #1a1a1e;
+  --hc-color-card: #ffffff;
+  --hc-color-card-fg: #1a1a1e;
+  --hc-color-popover: #ffffff;
+  --hc-color-popover-fg: #1a1a1e;
+
+  --hc-font-family: 'Inter', sans-serif;
+  --sidebar-width: 16rem;
+  --sidebar-width-icon: 3rem;
+}
+
+[data-theme='dark'],
+.dark {
+  --hc-color-background: #0f0f12;
+  --hc-color-foreground: #f1f1f1;
+  --hc-color-card: #1a1a1e;
+  --hc-color-card-fg: #f1f1f1;
+  --hc-color-muted: #38383e;
+  --hc-color-muted-fg: #a2a2a6;
+  --hc-color-border: #38383e;
+  --hc-color-input: #38383e;
+  --hc-color-primary: #7a6edb;
+  --hc-color-primary-hover: #a099e7;
+  --hc-color-primary-fg: #ffffff;
+  --hc-color-popover: #1a1a1e;
+  --hc-color-popover-fg: #f1f1f1;
+  --hc-color-ring: #7a6edb;
+}
