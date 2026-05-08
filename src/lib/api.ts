@@ -119,6 +119,17 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
   return (await response.json()) as T;
 }
 
+export interface InstallTokenResponse {
+  token: string;
+  expiresAt: string;
+  tenantId: string;
+  publicUrl: string;
+  commands: {
+    sh: string;
+    ps1: string;
+  };
+}
+
 export const agentsApi = {
   list: () => apiFetch<Agent[]>('/v1/agents'),
   get: (id: string) => apiFetch<Agent>(`/v1/agents/${id}`),
@@ -128,6 +139,10 @@ export const agentsApi = {
     ),
   claimOrphans: () =>
     apiFetch<{ updatedAgents: number; error?: string }>('/v1/agents/claim-orphans', {
+      method: 'POST',
+    }),
+  createInstallToken: () =>
+    apiFetch<InstallTokenResponse>('/v1/agents/install-tokens', {
       method: 'POST',
     }),
 };
