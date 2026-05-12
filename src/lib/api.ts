@@ -133,9 +133,9 @@ export interface InstallTokenResponse {
 export const agentsApi = {
   list: () => apiFetch<Agent[]>('/v1/agents'),
   get: (id: string) => apiFetch<Agent>(`/v1/agents/${id}`),
-  heartbeats: (agentId: string, limit = 100) =>
-    apiFetch<Array<{ id: string; agentId: string; timestamp: string; agentVersion: string | null; uptimeSeconds: number | null; createdAt: string }>>(
-      `/v1/agents/${agentId}/heartbeats?limit=${limit}`,
+  statusEvents: (agentId: string, limit = 100) =>
+    apiFetch<Array<{ id: string; agentId: string; tenantId: string | null; status: 'online' | 'offline'; occurredAt: string; agentVersion: string | null; createdAt: string }>>(
+      `/v1/agents/${agentId}/status-events?limit=${limit}`,
     ),
   claimOrphans: () =>
     apiFetch<{ updatedAgents: number; error?: string }>('/v1/agents/claim-orphans', {

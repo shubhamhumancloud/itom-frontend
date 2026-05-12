@@ -117,7 +117,7 @@ export function DashboardOverview() {
               value={summary?.unknownAgents ?? 0}
               icon={Activity}
               tone="violet"
-              descriptor="awaiting heartbeat"
+              descriptor="awaiting connection"
               descriptorTone="muted"
             />
             <KpiCard
@@ -161,8 +161,8 @@ export function DashboardOverview() {
                         <TableRow key={`incident-${agent.agentId}`}>
                           <TableCell>
                             {agent.status === 'offline'
-                              ? 'Heartbeat timeout'
-                              : 'Awaiting heartbeat'}
+                              ? 'Connection lost'
+                              : 'Awaiting connection'}
                           </TableCell>
                           <TableCell className="font-medium" title={agent.hostname ?? ''}>
                             {agentLabel(agent.os, agent.agentId)}
