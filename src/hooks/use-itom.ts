@@ -56,10 +56,10 @@ export function useAgent(agentId: string) {
   });
 }
 
-export function useAgentHeartbeats(agentId: string, limit = 100) {
+export function useAgentStatusEvents(agentId: string, limit = 100) {
   return useQuery({
-    queryKey: ['heartbeats', agentId, limit],
-    queryFn: () => agentsApi.heartbeats(agentId, limit),
+    queryKey: ['status-events', agentId, limit],
+    queryFn: () => agentsApi.statusEvents(agentId, limit),
     enabled: !!agentId,
     refetchInterval: 15_000,
   });

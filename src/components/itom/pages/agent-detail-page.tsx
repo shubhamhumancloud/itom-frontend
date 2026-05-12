@@ -19,9 +19,9 @@ import { StatusBadge } from '@/components/itom/status-badge';
 import {
   useAgent,
   useAgentDisk,
-  useAgentHeartbeats,
   useAgentMetrics,
   useAgentNetwork,
+  useAgentStatusEvents,
 } from '@/hooks/use-itom';
 import { agentLabel, formatBytes, formatPercent, formatRelativeTime } from '@/lib/format';
 import { AgentProcessesTab } from './agent-processes-tab';
@@ -34,7 +34,7 @@ export function AgentDetailPage({ agentId }: { agentId: string }) {
   const { data: metrics = [] } = useAgentMetrics(agentId, 200);
   const { data: network = [] } = useAgentNetwork(agentId, 1000);
   const { data: disk = [] } = useAgentDisk(agentId, 1000);
-  const { data: heartbeats = [] } = useAgentHeartbeats(agentId, 100);
+  const { data: statusEvents = [] } = useAgentStatusEvents(agentId, 100);
 
   const chartData = [...metrics]
     .sort(
@@ -326,7 +326,7 @@ export function AgentDetailPage({ agentId }: { agentId: string }) {
           <TabsTrigger value="metrics">Metrics</TabsTrigger>
           <TabsTrigger value="network">Network</TabsTrigger>
           <TabsTrigger value="disk">Disk</TabsTrigger>
-          <TabsTrigger value="heartbeats">Heartbeats</TabsTrigger>
+          <TabsTrigger value="status-events">Status log</TabsTrigger>
         </TabsList>
 
         <TabsContent value="processes" className="mt-4">
@@ -713,24 +713,31 @@ export function AgentDetailPage({ agentId }: { agentId: string }) {
           </Card>
         </TabsContent>
 
-        <TabsContent value="heartbeats" className="mt-4">
+        <TabsContent value="status-events" className="mt-4">
           <Card className="border-border/90 shadow-(--shadow-soft)">
             <CardHeader className="pb-3">
-              <CardTitle className="text-base font-semibold">Recent heartbeats</CardTitle>
+              <CardTitle className="text-base font-semibold">Connection history</CardTitle>
             </CardHeader>
             <CardContent className="space-y-1 text-sm">
-              {heartbeats.length === 0 ? (
-                <p className="text-muted-foreground">No heartbeat records yet.</p>
+              {statusEvents.length === 0 ? (
+                <p className="text-muted-foreground">No status changes recorded yet.</p>
               ) : (
-                heartbeats.map((hb) => (
+                statusEvents.map((ev) => (
                   <div
-                    key={hb.id}
+                    key={ev.id}
                     className="grid grid-cols-3 gap-4 border-b border-border/60 py-2 last:border-0"
                   >
-                    <span>{formatRelativeTime(hb.timestamp)}</span>
-                    <span className="text-muted-foreground">{hb.agentVersion ?? '-'}</span>
+                    <span
+                      className={cn(
+                        'font-medium',
+                        ev.status === 'online' ? 'text-emerald-600' : 'text-rose-600',
+                      )}
+                    >
+                      {ev.status === 'online' ? '● Online' : '○ Offline'}
+                    </span>
+                    <span>{formatRelativeTime(ev.occurredAt)}</span>
                     <span className="text-right text-muted-foreground">
-                      {hb.uptimeSeconds != null ? `${hb.uptimeSeconds}s uptime` : '-'}
+                      {ev.agentVersion ?? '-'}
                     </span>
                   </div>
                 ))

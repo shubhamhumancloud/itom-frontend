@@ -1,2 +1,9 @@
 /node_modules
 /.next
+
+# Local env / npm config — never commit, contains secrets
+.env
+.env.local
+.env.*.local
+npmrc
+.npmrc
