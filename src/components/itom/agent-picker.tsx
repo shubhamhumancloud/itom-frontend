@@ -25,7 +25,7 @@ export function AgentPicker({
   const { data: agents = [], isLoading } = useAgents();
 
   return (
-    <Select value={value} onValueChange={onChange}>
+    <Select value={value} onValueChange={(v) => onChange(v ?? '')}>
       <SelectTrigger className="w-[240px] max-w-full">
         <div className="flex min-w-0 items-center gap-2">
           <Server className="h-4 w-4 shrink-0 text-muted-foreground" />

@@ -55,7 +55,7 @@ export function ActivityTrendChart({ data }: { data: ActivityTrendPoint[] }) {
               fontSize: 12,
               color: 'var(--popover-foreground)',
             }}
-            formatter={(value: number) => [value, 'Heartbeats']}
+            formatter={(value) => [Number(value ?? 0), 'Heartbeats']}
           />
           <Area
             type="monotone"

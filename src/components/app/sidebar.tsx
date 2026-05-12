@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import {
   Activity,
   BarChart3,
+  GitBranch,
   HardDrive,
   LayoutDashboard,
   LogOut,
@@ -32,6 +33,10 @@ const groups: NavGroup[] = [
       { href: '/network', label: 'Network', icon: Network },
       { href: '/disk', label: 'Disk', icon: HardDrive },
     ],
+  },
+  {
+    label: 'Discovery',
+    items: [{ href: '/discovery/topology', label: 'Topology', icon: GitBranch }],
   },
   {
     label: 'Account',

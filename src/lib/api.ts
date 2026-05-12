@@ -176,6 +176,129 @@ export const diskApi = {
   },
 };
 
+// ----- Discovery / Topology -----
+
+export type DiscoveryDeviceKind =
+  | 'firewall'
+  | 'router'
+  | 'switch'
+  | 'server'
+  | 'workstation'
+  | 'printer'
+  | 'camera'
+  | 'iot'
+  | 'unknown';
+
+export type DiscoveryNode = {
+  data: {
+    id: string;
+    label: string;
+    kind: DiscoveryDeviceKind;
+    vendor: string | null;
+    model: string | null;
+    identityKey: string;
+    managementIp: string | null;
+    availability: 'up' | 'down' | 'unknown' | 'maintenance';
+    lifecycle: 'active' | 'decommissioned' | 'archived';
+    lastSeenAt: string | null;
+    sources: string[];
+  };
+};
+
+export type DiscoveryEdge = {
+  data: {
+    id: string;
+    source: string;
+    target: string;
+    kind: 'lldp' | 'cdp' | 'l3_adjacency' | 'ipsec_tunnel' | 'arp';
+    fromIfIndex: number | null;
+    toIfIndex: number | null;
+    lastSeenAt: string | null;
+  };
+};
+
+export type DiscoveryTopology = {
+  nodes: DiscoveryNode[];
+  edges: DiscoveryEdge[];
+};
+
+export type DiscoveryDevice = DiscoveryNode['data'] & {
+  hostname: string | null;
+  chassisSerial: string | null;
+  sysDescr: string | null;
+};
+
+export type DiscoveryDeviceDetail = {
+  device: DiscoveryDevice;
+  interfaces: Array<{
+    id: string;
+    ifIndex: number;
+    name: string;
+    description: string | null;
+    type: string | null;
+    speedBps: string;
+    mac: string | null;
+    adminStatus: string;
+    operStatus: string;
+    zone: string | null;
+  }>;
+  ips: Array<{ id: string; ip: string; prefixLen: number | null; interfaceId: string }>;
+  openPorts: Array<{
+    id: string;
+    port: number;
+    protocol: string;
+    service: string | null;
+    banner: string | null;
+    tlsCertCn: string | null;
+    tlsCertSans: string[];
+  }>;
+  events: Array<{
+    id: string;
+    kind: string;
+    payload: Record<string, unknown>;
+    createdAt: string;
+  }>;
+  neighbors: {
+    incoming: DiscoveryEdge['data'][];
+    outgoing: DiscoveryEdge['data'][];
+  };
+};
+
+export const discoveryApi = {
+  sites: () =>
+    apiFetch<Array<{ id: string; name: string; description: string | null }>>(
+      '/v1/discovery/sites',
+    ),
+  topology: (siteId?: string) => {
+    const q = siteId ? `?siteId=${encodeURIComponent(siteId)}` : '';
+    return apiFetch<DiscoveryTopology>(`/v1/discovery/topology${q}`);
+  },
+  devices: (params: { q?: string; limit?: number } = {}) => {
+    const query = new URLSearchParams();
+    if (params.q) query.set('q', params.q);
+    if (params.limit) query.set('limit', String(params.limit));
+    const qs = query.toString();
+    return apiFetch<DiscoveryDevice[]>(
+      `/v1/discovery/devices${qs ? `?${qs}` : ''}`,
+    );
+  },
+  device: (id: string) =>
+    apiFetch<DiscoveryDeviceDetail>(`/v1/discovery/devices/${id}`),
+  seedDemo: () =>
+    apiFetch<{ sessionId: string; observations: number }>(
+      '/v1/discovery/demo/seed',
+      { method: 'POST' },
+    ),
+  clearDemo: () =>
+    apiFetch<{
+      scanJobs: number;
+      sessions: number;
+      observations: number;
+      devices: number;
+      edges: number;
+    }>('/v1/discovery/demo/seed', { method: 'DELETE' }),
+};
+
 export type DashboardSummary = {
   totalAgents: number;
   onlineAgents: number;

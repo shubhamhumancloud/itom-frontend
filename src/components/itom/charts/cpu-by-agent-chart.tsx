@@ -66,7 +66,7 @@ export function CpuByAgentChart({ data }: { data: CpuByAgentEntry[] }) {
               fontSize: 12,
               color: 'var(--popover-foreground)',
             }}
-            formatter={(value: number) => [`${value}%`, 'CPU']}
+            formatter={(value) => [`${Number(value ?? 0)}%`, 'CPU']}
           />
           <Bar dataKey="cpuPercent" radius={[6, 6, 0, 0]}>
             {colored.map((entry, idx) => (
