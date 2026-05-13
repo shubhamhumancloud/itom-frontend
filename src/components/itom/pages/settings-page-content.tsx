@@ -203,7 +203,14 @@ export function SettingsPageContent() {
             disabled={!tenantId || claim.isPending}
             className="bg-emerald-600 text-white hover:bg-emerald-700"
           >
-            {claim.isPending ? 'Claiming…' : 'Claim orphan agents'}
+            {claim.isPending ? (
+              <>
+                <RefreshCw className="mr-2 h-3.5 w-3.5 animate-spin" />
+                Claiming…
+              </>
+            ) : (
+              'Claim orphan agents'
+            )}
           </Button>
         </CardContent>
       </Card>

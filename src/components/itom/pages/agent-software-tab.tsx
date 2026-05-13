@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/table';
 import { useAgentSoftware } from '@/hooks/use-itom';
 import { useBottomObserver } from '@/hooks/use-bottom-observer';
+import { FetchProgressBar, LoadingMoreRow, TableSkeleton } from '@/components/ui/loaders';
 import { formatBytes } from '@/lib/format';
 
 export function AgentSoftwareTab({ agentId }: { agentId: string }) {
@@ -33,6 +34,7 @@ export function AgentSoftwareTab({ agentId }: { agentId: string }) {
     hasNextPage,
     isFetchingNextPage,
     isLoading,
+    isFetching,
   } = useAgentSoftware(agentId, search);
 
   const items = useMemo(
@@ -48,6 +50,7 @@ export function AgentSoftwareTab({ agentId }: { agentId: string }) {
 
   return (
     <Card className="border-border/90 shadow-(--shadow-soft)">
+      <FetchProgressBar isFetching={isFetching && !isLoading} className="mx-3 mt-3" />
       <CardHeader className="flex flex-row items-center justify-between gap-4 pb-3">
         <div>
           <CardTitle className="flex items-center gap-2 text-base font-semibold">
@@ -70,9 +73,7 @@ export function AgentSoftwareTab({ agentId }: { agentId: string }) {
       </CardHeader>
       <CardContent>
         {isLoading ? (
-          <p className="py-8 text-center text-sm text-muted-foreground">
-            Loading software…
-          </p>
+          <TableSkeleton rows={8} columns={6} />
         ) : totalLoaded === 0 ? (
           <div className="rounded-lg border border-dashed border-border bg-muted/30 px-6 py-10 text-center">
             <p className="text-sm text-muted-foreground">
@@ -125,11 +126,7 @@ export function AgentSoftwareTab({ agentId }: { agentId: string }) {
               </TableBody>
             </Table>
             <div ref={sentinelRef} className="h-4" />
-            {isFetchingNextPage && (
-              <p className="py-2 text-center text-xs text-muted-foreground">
-                Loading more…
-              </p>
-            )}
+            {isFetchingNextPage && <LoadingMoreRow />}
             {!hasNextPage && totalLoaded > 0 && (
               <p className="py-2 text-center text-xs text-muted-foreground">
                 Showing {totalLoaded.toLocaleString()} apps

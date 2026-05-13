@@ -17,13 +17,14 @@ import {
   useAgentProcesses,
 } from '@/hooks/use-itom';
 import { useBottomObserver } from '@/hooks/use-bottom-observer';
+import { FetchProgressBar, LoadingMoreRow, TableSkeleton } from '@/components/ui/loaders';
 import { formatBytes, formatNumber, toNumber } from '@/lib/format';
 
 type SortKey = 'cpu' | 'mem' | 'name';
 const PAGE = 20;
 
 export function AgentProcessesTab({ agentId }: { agentId: string }) {
-  const { data: rows = [], isLoading } = useAgentProcesses(agentId, 200);
+  const { data: rows = [], isLoading, isFetching } = useAgentProcesses(agentId, 200);
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState<SortKey>('cpu');
   const [visible, setVisible] = useState(PAGE);
@@ -58,9 +59,14 @@ export function AgentProcessesTab({ agentId }: { agentId: string }) {
 
   if (isLoading) {
     return (
-      <p className="py-8 text-center text-sm text-muted-foreground">
-        Loading processes…
-      </p>
+      <Card className="border-border/90 shadow-(--shadow-soft)">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base font-semibold">Top processes</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <TableSkeleton rows={10} columns={7} />
+        </CardContent>
+      </Card>
     );
   }
   if (rows.length === 0) {
@@ -77,6 +83,7 @@ export function AgentProcessesTab({ agentId }: { agentId: string }) {
 
   return (
     <Card className="border-border/90 shadow-(--shadow-soft)">
+      <FetchProgressBar isFetching={isFetching && !isLoading} className="mx-3 mt-3" />
       <CardHeader className="flex flex-row items-center justify-between gap-4 pb-3">
         <div>
           <CardTitle className="text-base font-semibold">
@@ -143,9 +150,7 @@ export function AgentProcessesTab({ agentId }: { agentId: string }) {
         </Table>
         <div ref={sentinelRef} className="h-4" />
         {visible < filtered.length && (
-          <p className="py-2 text-center text-xs text-muted-foreground">
-            Loading more…
-          </p>
+          <LoadingMoreRow current={visible} total={filtered.length} />
         )}
       </CardContent>
     </Card>

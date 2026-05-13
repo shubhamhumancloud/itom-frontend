@@ -5,6 +5,7 @@ import { useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { LoadingOverlay, TableSkeleton, useColdLoad } from '@/components/ui/loaders';
 import { useAgents } from '@/hooks/use-itom';
 import { agentLabel, formatRelativeTime, truncateMiddle } from '@/lib/format';
 import { StatusBadge } from '@/components/itom/status-badge';
@@ -12,6 +13,7 @@ import { StatusBadge } from '@/components/itom/status-badge';
 export function AgentsTable() {
   const { data = [], isLoading } = useAgents();
   const [search, setSearch] = useState('');
+  const showOverlay = useColdLoad(isLoading, data.length > 0);
 
   const rows = useMemo(() => {
     const q = search.toLowerCase();
@@ -25,6 +27,7 @@ export function AgentsTable() {
 
   return (
     <div className="w-full space-y-4">
+      <LoadingOverlay isLoading={showOverlay} />
       <div>
         <h1 className="font-display text-2xl font-semibold tracking-tight">Agents</h1>
         <p className="text-xs text-muted-foreground">
@@ -44,7 +47,7 @@ export function AgentsTable() {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <p className="text-sm text-muted-foreground">Loading agents…</p>
+            <TableSkeleton rows={6} columns={6} />
           ) : rows.length === 0 ? (
             <div className="rounded-lg border border-dashed border-border bg-muted/30 px-6 py-10 text-center">
               <p className="text-sm text-muted-foreground">

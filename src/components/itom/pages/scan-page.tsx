@@ -21,6 +21,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
+import { CardSkeleton, LoadingOverlay, useColdLoad } from '@/components/ui/loaders';
 import {
   Dialog,
   DialogContent,
@@ -202,12 +203,18 @@ export function ScanPage() {
     onError: (e: any) => toast.error(e?.message ?? String(e)),
   });
 
+  const showOverlay = useColdLoad(
+    collectors.isLoading,
+    (collectors.data?.length ?? 0) > 0,
+  );
+
   const onlineCollectors = (collectors.data ?? []).filter(
     (c) => c.status === 'online',
   );
 
   return (
     <div className="flex h-[calc(100vh-3.5rem)] flex-col gap-4 overflow-y-auto p-6">
+      <LoadingOverlay isLoading={showOverlay} />
       <header className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="rounded-md bg-primary/10 p-2 text-primary">
@@ -254,7 +261,10 @@ export function ScanPage() {
           </CardHeader>
           <CardContent className="space-y-2 pt-0">
             {collectors.isLoading && (
-              <p className="text-sm text-muted-foreground">Loading collectors…</p>
+              <div className="space-y-2">
+                <CardSkeleton lines={3} />
+                <CardSkeleton lines={3} />
+              </div>
             )}
             {!collectors.isLoading && (collectors.data ?? []).length === 0 && (
               <div className="rounded-md border border-dashed p-4 text-sm text-muted-foreground">
