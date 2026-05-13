@@ -297,6 +297,118 @@ export const discoveryApi = {
       devices: number;
       edges: number;
     }>('/v1/discovery/demo/seed', { method: 'DELETE' }),
+  hosts: (params: { q?: string; limit?: number; collectorId?: string } = {}) => {
+    const qs = new URLSearchParams();
+    if (params.q) qs.set('q', params.q);
+    if (params.limit) qs.set('limit', String(params.limit));
+    if (params.collectorId) qs.set('collectorId', params.collectorId);
+    const q = qs.toString();
+    return apiFetch<DiscoveryHostRow[]>(
+      `/v1/discovery/hosts${q ? `?${q}` : ''}`,
+    );
+  },
+};
+
+export type DiscoveryHostRow = {
+  id: string;
+  hostname: string | null;
+  ip: string | null;
+  ips: string[];
+  mac: string | null;
+  vendor: string | null;
+  model: string | null;
+  kind: DiscoveryDeviceKind;
+  availability: 'up' | 'down' | 'unknown' | 'maintenance';
+  lifecycle: 'active' | 'decommissioned' | 'archived';
+  identityKey: string;
+  sysDescr: string | null;
+  lastSeenAt: string | null;
+  sources: string[];
+  ports: Array<{
+    port: number;
+    protocol: string;
+    service: string | null;
+    banner: string | null;
+    tlsCertCn: string | null;
+  }>;
+};
+
+// ----- Collectors -----
+
+export type CollectorRow = {
+  id: string;
+  name: string;
+  allowedCidrs: string[];
+  status: 'pending' | 'online' | 'offline' | 'unknown';
+  lastSeenAt: string | null;
+  version: string | null;
+  createdAt: string;
+};
+
+export type CreateCollectorResp = CollectorRow & {
+  tenantId: string;
+  bearerToken: string; // shown ONCE — the BE doesn't store the plaintext
+};
+
+export const collectorsApi = {
+  list: () => apiFetch<CollectorRow[]>('/v1/discovery/collectors'),
+  create: (body: { name: string; allowedCidrs: string[] }) =>
+    apiFetch<CreateCollectorResp>('/v1/discovery/collectors', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
+  remove: (id: string) =>
+    apiFetch<{ scanJobs: number; sessions: number; observations: number }>(
+      `/v1/discovery/collectors/${encodeURIComponent(id)}`,
+      { method: 'DELETE' },
+    ),
+};
+
+// ----- Scan jobs -----
+
+export type ScanJobRow = {
+  id: string;
+  tenantId: string;
+  collectorId: string | null;
+  pillar: 'firewall' | 'active' | 'noop';
+  status:
+    | 'queued'
+    | 'assigned'
+    | 'running'
+    | 'completed'
+    | 'failed'
+    | 'timeout'
+    | 'cancelled';
+  statusReason: string | null;
+  targetSpec: Record<string, unknown> | null;
+  credentialRefs: string[];
+  createdAt: string;
+  updatedAt: string;
+};
+
+export const scansApi = {
+  list: (limit = 25) =>
+    apiFetch<ScanJobRow[]>(`/v1/discovery/scans?limit=${limit}`),
+  get: (id: string) => apiFetch<ScanJobRow>(`/v1/discovery/scans/${id}`),
+  create: (body: {
+    pillar: 'active' | 'firewall' | 'noop';
+    collectorId?: string | null;
+    targetSpec?: Record<string, unknown>;
+    credentialRefs?: string[];
+  }) =>
+    apiFetch<ScanJobRow>('/v1/discovery/scans', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
+};
+
+// ----- Signing pubkey (useful for the "register a collector" flow) -----
+
+export const signingApi = {
+  publicKey: () =>
+    apiFetch<{ algorithm: string; publicKeyBase64: string }>(
+      '/v1/discovery/signing/public-key',
+    ),
 };
 
 export type DashboardSummary = {

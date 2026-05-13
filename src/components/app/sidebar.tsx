@@ -8,8 +8,10 @@ import {
   GitBranch,
   HardDrive,
   LayoutDashboard,
+  ListChecks,
   LogOut,
   Network,
+  Radar,
   Server,
   Settings,
 } from 'lucide-react';
@@ -36,7 +38,11 @@ const groups: NavGroup[] = [
   },
   {
     label: 'Discovery',
-    items: [{ href: '/discovery/topology', label: 'Topology', icon: GitBranch }],
+    items: [
+      { href: '/discovery/scan', label: 'Network Scan', icon: Radar },
+      { href: '/discovery/hosts', label: 'Hosts', icon: ListChecks },
+      { href: '/discovery/topology', label: 'Topology', icon: GitBranch },
+    ],
   },
   {
     label: 'Account',
