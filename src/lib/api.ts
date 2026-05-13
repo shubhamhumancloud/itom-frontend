@@ -453,7 +453,7 @@ export const dashboardApi = {
     apiFetch<CpuByAgentEntry[]>(`/v1/dashboard/cpu-by-agent?limit=${limit}`),
 };
 
-// ----- Observability types (processes / battery / sensors / smart / gpu / software) -----
+// ----- Observability types (processes / battery / sensors / gpu / software) -----
 
 export type ProcessRow = {
   agentId: string;
@@ -489,19 +489,6 @@ export type SensorRow = {
   name: string;
   kind: 'temperature_c' | 'fan_rpm';
   value: number | string;
-};
-
-export type DiskHealthRow = {
-  agentId: string;
-  timestamp: string;
-  device: string;
-  model: string | null;
-  status: 'healthy' | 'warning' | 'failing' | 'unknown';
-  predictedFailure: boolean;
-  temperatureC: number | string | null;
-  powerOnHours: number | null;
-  reallocatedSectors: number | null;
-  wearLevelingPercent: number | string | null;
 };
 
 export type GpuRow = {
@@ -550,8 +537,6 @@ export const observabilityApi = {
     q.set('limit', String(limit));
     return apiFetch<SensorRow[]>(`/v1/agents/${agentId}/sensors?${q}`);
   },
-  diskHealth: (agentId: string) =>
-    apiFetch<DiskHealthRow[]>(`/v1/agents/${agentId}/disk-health`),
   gpu: (agentId: string) =>
     apiFetch<GpuRow[]>(`/v1/agents/${agentId}/gpu`),
   gpuHistory: (agentId: string, limit = 120) =>
