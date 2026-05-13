@@ -237,6 +237,21 @@ const ICON_OVERRIDES: Array<{ pattern: RegExp; url: string }> = [
   { pattern: /\b(java|jdk|jre)\b/i,         url: 'https://api.iconify.design/logos:java.svg' },
   { pattern: /^skype\b/i,                   url: 'https://api.iconify.design/logos:skype.svg' },
   { pattern: /^zoom\b/i,                    url: 'https://api.iconify.design/logos:zoom-icon.svg' },
+  // Apple user-facing apps that Iconify has specific logos for.
+  { pattern: /^app\s?store\b/i,                url: 'https://api.iconify.design/logos:apple-app-store.svg' },
+  { pattern: /^safari\b/i,                     url: 'https://api.iconify.design/logos:safari.svg' },
+  { pattern: /^xcode\b/i,                      url: 'https://cdn.simpleicons.org/xcode' },
+  { pattern: /^icloud\b/i,                     url: 'https://cdn.simpleicons.org/icloud' },
+  { pattern: /^imessage\b/i,                   url: 'https://cdn.simpleicons.org/imessage' },
+  { pattern: /^itunes\b/i,                     url: 'https://cdn.simpleicons.org/itunes' },
+  { pattern: /^apple\s+music\b/i,              url: 'https://cdn.simpleicons.org/applemusic' },
+  { pattern: /^apple\s+podcasts?\b/i,          url: 'https://cdn.simpleicons.org/applepodcasts' },
+  { pattern: /^apple\s+news\b/i,               url: 'https://cdn.simpleicons.org/applenews' },
+  { pattern: /^apple\s+pay\b/i,                url: 'https://cdn.simpleicons.org/applepay' },
+  { pattern: /^apple\s+arcade\b/i,             url: 'https://cdn.simpleicons.org/applearcade' },
+  { pattern: /^applescript\b/i,                url: 'https://api.iconify.design/vscode-icons:file-type-applescript.svg' },
+  { pattern: /^swift\s+playgrounds?\b/i,       url: 'https://api.iconify.design/logos:swift.svg' },
+
   // Simple Icons has these but our slug derivation doesn't always land cleanly.
   { pattern: /^google\s+chrome\b/i,            url: 'https://cdn.simpleicons.org/googlechrome' },
   { pattern: /^(mozilla\s+)?firefox\b/i,       url: 'https://api.iconify.design/logos:firefox.svg' },
