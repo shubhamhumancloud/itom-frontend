@@ -24,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { LoadingOverlay, TableSkeleton, useColdLoad } from '@/components/ui/loaders';
 import { collectorsApi, discoveryApi, type DiscoveryHostRow } from '@/lib/api';
 
 const ALL_COLLECTORS = '__all__';
@@ -105,6 +106,11 @@ export function HostsPage() {
     refetchInterval: 15_000,
   });
 
+  const showOverlay = useColdLoad(
+    hosts.isLoading,
+    (hosts.data?.length ?? 0) > 0,
+  );
+
   const rows = useMemo(() => {
     const filtered = (hosts.data ?? []).filter((h) => {
       if (kindFilter !== '__all__' && h.kind !== kindFilter) return false;
@@ -153,6 +159,7 @@ export function HostsPage() {
 
   return (
     <div className="flex h-[calc(100vh-3.5rem)] flex-col gap-4 overflow-y-auto p-6">
+      <LoadingOverlay isLoading={showOverlay} />
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="rounded-md bg-primary/10 p-2 text-primary">
@@ -270,7 +277,7 @@ export function HostsPage() {
         </CardHeader>
         <CardContent className="p-0">
           {hosts.isLoading ? (
-            <div className="p-8 text-center text-sm text-muted-foreground">Loading hosts…</div>
+            <TableSkeleton rows={8} columns={7} className="m-3 border-none" />
           ) : rows.length === 0 ? (
             <div className="p-8 text-center text-sm text-muted-foreground">
               No hosts discovered yet. Run a{' '}

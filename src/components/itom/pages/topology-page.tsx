@@ -7,6 +7,8 @@ import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { InlineLoader, LoadingOverlay, useColdLoad } from '@/components/ui/loaders';
+import { Skeleton } from '@/components/ui/skeleton';
 import { discoveryApi, type DiscoveryDevice, type DiscoveryTopology } from '@/lib/api';
 import { TopologyGraph } from './topology-graph';
 import { DeviceDetailPanel } from './device-detail-panel';
@@ -63,6 +65,10 @@ export function TopologyPage() {
   });
 
   const empty = (topology.data?.nodes.length ?? 0) === 0 && !topology.isLoading;
+  const showOverlay = useColdLoad(
+    topology.isLoading || devices.isLoading,
+    (topology.data?.nodes.length ?? 0) > 0 || (devices.data?.length ?? 0) > 0,
+  );
 
   // Filter devices by search client-side too so we can highlight in the
   // graph immediately while the network request lands.
@@ -90,6 +96,7 @@ export function TopologyPage() {
 
   return (
     <div className="flex h-[calc(100vh-3.5rem)] flex-col gap-4 p-6">
+      <LoadingOverlay isLoading={showOverlay} />
       <header className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="rounded-md bg-primary/10 p-2 text-primary">
@@ -173,7 +180,11 @@ export function TopologyPage() {
             </CardHeader>
             <CardContent className="flex-1 space-y-1 overflow-y-auto pt-2 text-sm">
               {devices.isLoading ? (
-                <p className="text-muted-foreground">Loading…</p>
+                <div className="space-y-1.5 px-1 py-1">
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <Skeleton key={i} className="h-7 w-full rounded-md" />
+                  ))}
+                </div>
               ) : (
                 (devices.data ?? []).map((d) => (
                   <button

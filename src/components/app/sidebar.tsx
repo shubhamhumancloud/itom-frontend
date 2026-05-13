@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
-  Activity,
   BarChart3,
   GitBranch,
   HardDrive,
@@ -15,6 +14,7 @@ import {
   Server,
   Settings,
 } from 'lucide-react';
+import { AcaiOpsLogo } from '@/components/app/acai-ops-logo';
 import { cn } from '@/lib/utils';
 
 type NavItem = { href: string; label: string; icon: typeof Server };
@@ -62,14 +62,8 @@ export function Sidebar({ email }: { email: string }) {
 
   return (
     <aside className="flex min-h-[calc(100vh-0px)] w-[240px] flex-col border-r border-sidebar-border bg-sidebar">
-      <div className="flex items-center gap-3 border-b border-sidebar-border px-5 py-5">
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-(--shadow-glow-brand)">
-          <Activity className="h-5 w-5" />
-        </div>
-        <div className="leading-tight">
-          <div className="text-sm font-semibold text-sidebar-foreground">ITOM</div>
-          <div className="text-xs text-muted-foreground">by Acai</div>
-        </div>
+      <div className="flex items-center border-b border-sidebar-border px-5 py-5 text-sidebar-foreground">
+        <AcaiOpsLogo className="h-8 w-auto" />
       </div>
 
       <nav className="flex-1 overflow-y-auto px-3 py-4">

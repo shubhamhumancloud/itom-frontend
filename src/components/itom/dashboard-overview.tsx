@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { LoadingOverlay, useColdLoad } from '@/components/ui/loaders';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
   useAgents,
@@ -40,9 +41,11 @@ export function DashboardOverview() {
   const recentIncidents = agents.filter((agent) => agent.status !== 'online').slice(0, 8);
 
   const isLoading = summaryQ.isLoading && agentsQ.isLoading;
+  const showOverlay = useColdLoad(isLoading, !!summary || agents.length > 0);
 
   return (
     <div className="w-full space-y-4">
+      <LoadingOverlay isLoading={showOverlay} />
       <div>
         <h1 className="font-display text-2xl font-semibold tracking-tight">Dashboard</h1>
         <p className="text-xs text-muted-foreground">Overview of your ITOM environment</p>

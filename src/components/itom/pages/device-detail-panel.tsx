@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Activity, Network, ScanLine, Server } from 'lucide-react';
 import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { discoveryApi } from '@/lib/api';
 import { formatRelativeTime } from '@/lib/format';
 
@@ -39,9 +40,14 @@ export function DeviceDetailPanel({ deviceId }: DeviceDetailPanelProps) {
     return (
       <>
         <CardHeader>
-          <CardTitle className="text-sm">Loading…</CardTitle>
+          <Skeleton className="h-4 w-32" />
         </CardHeader>
-        <CardContent />
+        <CardContent className="space-y-2">
+          <Skeleton className="h-3 w-3/4" />
+          <Skeleton className="h-3 w-2/3" />
+          <Skeleton className="h-3 w-4/5" />
+          <Skeleton className="h-3 w-1/2" />
+        </CardContent>
       </>
     );
   }

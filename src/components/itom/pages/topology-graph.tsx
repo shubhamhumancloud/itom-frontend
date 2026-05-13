@@ -9,6 +9,7 @@ import cytoscape, { type Core, type ElementDefinition } from 'cytoscape';
 // @ts-ignore
 import fcose from 'cytoscape-fcose';
 import type { DiscoveryTopology } from '@/lib/api';
+import { InlineLoader } from '@/components/ui/loaders';
 
 // Register the fcose layout once. Cytoscape's `use` is idempotent.
 if (typeof window !== 'undefined') {
@@ -129,8 +130,8 @@ export function TopologyGraph({
     <div className="relative h-full w-full">
       <div ref={containerRef} className="h-full w-full" />
       {loading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-background/40 text-sm">
-          Loading graph…
+        <div className="absolute inset-0 flex items-center justify-center bg-background/40">
+          <InlineLoader label="Loading graph…" size="md" />
         </div>
       )}
     </div>
