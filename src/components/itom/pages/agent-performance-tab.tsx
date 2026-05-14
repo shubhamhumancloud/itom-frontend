@@ -73,7 +73,7 @@ export function AgentPerformanceTab({ agentId }: { agentId: string }) {
       sublabel: agent?.cpuModel ?? undefined,
       currentDisplay: pctOrDash(metrics[0]?.cpuPercent),
       points: framedPercentSeries(metrics, 'cpuPercent', range),
-      colour: 'var(--chart-1)',
+      colour: '#7F77DD',
     });
 
     out.push({
@@ -84,7 +84,7 @@ export function AgentPerformanceTab({ agentId }: { agentId: string }) {
         : undefined,
       currentDisplay: pctOrDash(metrics[0]?.memoryPercent),
       points: framedPercentSeries(metrics, 'memoryPercent', range),
-      colour: 'var(--chart-2)',
+      colour: '#1D9E75',
     });
 
     // Per-disk-mount entries from the disk samples stream.
@@ -113,7 +113,7 @@ export function AgentPerformanceTab({ agentId }: { agentId: string }) {
           : undefined,
         currentDisplay: pctOrDash(latest?.usedPercent),
         points: series,
-        colour: 'var(--chart-5)',
+        colour: '#378ADD',
       });
     }
 
@@ -134,7 +134,7 @@ export function AgentPerformanceTab({ agentId }: { agentId: string }) {
         sublabel: 'Network interface',
         currentDisplay: latestBps > 0 ? formatBitrate(latestBps) : '—',
         points,
-        colour: 'var(--chart-3)',
+        colour: '#D4537E',
         unit: 'bps',
       });
     }
@@ -162,7 +162,7 @@ export function AgentPerformanceTab({ agentId }: { agentId: string }) {
           (r) => r.timestamp,
           range,
         ),
-        colour: 'var(--chart-4)',
+        colour: '#BA7517',
       });
     }
 
@@ -381,9 +381,9 @@ function ChartArea({ res }: { res: Resource }) {
   // transparent (10%) at the bottom of the area.
   const gradientId = `chartArea-fill-${res.key}`;
   return (
-    <div className="h-72">
+    <div className="h-72 [&_.recharts-surface]:outline-none [&_*:focus]:outline-none">
       <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={res.points} margin={{ top: 10, right: 16, left: -10, bottom: 0 }}>
+        <AreaChart data={res.points} margin={{ top: 10, right: 16, left: 8, bottom: 0 }}>
           <defs>
             <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor={res.colour} stopOpacity={0.8} />
@@ -406,8 +406,8 @@ function ChartArea({ res }: { res: Resource }) {
             axisLine={false}
             {...(isPercent
               ? { domain: [0, 100], unit: '%' }
-              : { tickFormatter: (v: number) => formatBitrate(v) })}
-            width={isPercent ? 38 : 64}
+              : { domain: [0, 'auto'], tickFormatter: (v: number) => formatBitrate(v) })}
+            width={isPercent ? 44 : 72}
           />
           <Tooltip
             contentStyle={{
@@ -427,11 +427,12 @@ function ChartArea({ res }: { res: Resource }) {
             labelFormatter={(l) => String(l)}
           />
           <Area
-            type="natural"
+            type="monotone"
             dataKey="value"
             stroke={res.colour}
             strokeWidth={2}
             fill={`url(#${gradientId})`}
+            baseValue={0}
             isAnimationActive={false}
             dot={false}
           />
