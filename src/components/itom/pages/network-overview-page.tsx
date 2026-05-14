@@ -35,16 +35,24 @@ import { PageHeader } from '@/components/app/page-header';
  * (throughput + packet rates per interface only make sense per host;
  * a fleet-wide aggregate would interleave different machines).
  */
-export function NetworkOverviewPage() {
-  const [agentId, setAgentId] = useState<string>('');
+export function NetworkOverviewPage({
+  agentId: externalAgentId,
+}: { agentId?: string } = {}) {
+  // When the page is embedded inside the per-agent detail view, the
+  // parent passes agentId via prop and we skip the internal picker.
+  // Standalone (sidebar) mode keeps its own state + auto-pick logic.
+  const isEmbedded = externalAgentId !== undefined;
+  const [internalAgentId, setInternalAgentId] = useState<string>('');
   const { data: agents = [] } = useAgents();
 
-  // Auto-pick the first agent so the page renders something on first load.
   useEffect(() => {
-    if (!agentId && agents.length > 0) {
-      setAgentId(agents[0].agentId);
+    if (!isEmbedded && !internalAgentId && agents.length > 0) {
+      setInternalAgentId(agents[0].agentId);
     }
-  }, [agentId, agents]);
+  }, [isEmbedded, internalAgentId, agents]);
+
+  const agentId = isEmbedded ? externalAgentId! : internalAgentId;
+  const setAgentId = setInternalAgentId;
 
   const { data: network = [], isFetching, isLoading } = useAgentNetwork(agentId, 1000);
   const showOverlay = useColdLoad(isLoading, network.length > 0);
@@ -318,25 +326,25 @@ export function NetworkOverviewPage() {
     <div className="flex h-full w-full flex-col gap-4">
       <LoadingOverlay isLoading={showOverlay} />
       <FetchProgressBar isFetching={isFetching && !showOverlay} />
-      <PageHeader
-        title="Network"
-        description="Per-interface throughput and packet rates for the selected agent."
-        action={
-          <AgentPicker
-            value={agentId}
-            onChange={(v) => {
-              // "All agents" doesn't make sense for per-interface throughput —
-              // fall back to the first concrete agent.
-              if (!v || v === ALL_AGENTS_VALUE) {
-                setAgentId(agents[0]?.agentId ?? '');
-                return;
-              }
-              setAgentId(v);
-            }}
-            placeholder="Select agent"
-          />
-        }
-      />
+      {!isEmbedded && (
+        <PageHeader
+          title="Network"
+          description="Per-interface throughput and packet rates for the selected agent."
+          action={
+            <AgentPicker
+              value={agentId}
+              onChange={(v) => {
+                if (!v || v === ALL_AGENTS_VALUE) {
+                  setAgentId(agents[0]?.agentId ?? '');
+                  return;
+                }
+                setAgentId(v);
+              }}
+              placeholder="Select agent"
+            />
+          }
+        />
+      )}
 
       {/* Last-hour summary — sits above the per-interface card. Has its
           own natural height (chart + 4 KPI tiles), shrink-0 so the table

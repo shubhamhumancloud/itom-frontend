@@ -19,11 +19,35 @@ import {
 import { useBottomObserver } from '@/hooks/use-bottom-observer';
 import { FetchProgressBar, LoadingMoreRow, TableSkeleton } from '@/components/ui/loaders';
 import { formatBytes, formatNumber, toNumber } from '@/lib/format';
+import { SoftwareIcon } from './agent-software-tab';
 
 type SortKey = 'cpu' | 'mem' | 'name';
 const PAGE = 20;
 
-export function AgentProcessesTab({ agentId }: { agentId: string }) {
+// iconKeyFromProcessName normalises a raw process name (`chrome.exe`,
+// `Google Chrome Helper (Renderer)`, `code.exe`) into a string the shared
+// SoftwareIcon resolver can map to a brand logo. Stripping common binary
+// suffixes is the only transform the icon's existing slugifier doesn't
+// already do — everything else (paren noise, casing, strip-tokens) is
+// handled inside SoftwareIcon.
+function iconKeyFromProcessName(name: string): string {
+  return name.replace(/\.(exe|bin|app)$/i, '').trim();
+}
+
+export function AgentProcessesTab({
+  agentId,
+  os,
+}: {
+  agentId: string;
+  os?: string;
+}) {
+  // Per-process I/O counters work on Linux (/proc/<pid>/io) and Windows
+  // (NtQueryInformationProcess), but on macOS they require root + private
+  // APIs that the agent intentionally doesn't touch — gopsutil returns
+  // nothing useful there. Hide the two I/O columns on Macs so the table
+  // doesn't show two columns of dashes; keep them everywhere else.
+  // Unknown OS → show (no-loss default).
+  const showIO = (os ?? '').toLowerCase() !== 'darwin';
   const { data: rows = [], isLoading, isFetching } = useAgentProcesses(agentId, 200);
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState<SortKey>('cpu');
@@ -115,8 +139,12 @@ export function AgentProcessesTab({ agentId }: { agentId: string }) {
               <SortHead label="CPU" active={sort === 'cpu'} onClick={() => setSort('cpu')} className="text-right" />
               <TableHead className="text-right">Trend</TableHead>
               <SortHead label="Memory" active={sort === 'mem'} onClick={() => setSort('mem')} className="text-right" />
-              <TableHead className="text-right">I/O Read</TableHead>
-              <TableHead className="text-right">I/O Write</TableHead>
+              {showIO && (
+                <>
+                  <TableHead className="text-right">I/O Read</TableHead>
+                  <TableHead className="text-right">I/O Write</TableHead>
+                </>
+              )}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -124,7 +152,12 @@ export function AgentProcessesTab({ agentId }: { agentId: string }) {
               const series = sparks?.[r.processName] ?? [];
               return (
                 <TableRow key={r.processName}>
-                  <TableCell className="font-medium">{r.processName}</TableCell>
+                  <TableCell className="font-medium">
+                    <div className="flex items-center gap-2">
+                      <SoftwareIcon name={iconKeyFromProcessName(r.processName)} />
+                      <span>{r.processName}</span>
+                    </div>
+                  </TableCell>
                   <TableCell className="text-right text-muted-foreground">
                     {r.pidCount}
                   </TableCell>
@@ -137,12 +170,16 @@ export function AgentProcessesTab({ agentId }: { agentId: string }) {
                   <TableCell className="text-right tabular-nums">
                     {formatBytes(r.memoryBytes)}
                   </TableCell>
-                  <TableCell className="text-right text-muted-foreground tabular-nums">
-                    {r.ioReadBytes != null ? formatBytes(r.ioReadBytes) : '-'}
-                  </TableCell>
-                  <TableCell className="text-right text-muted-foreground tabular-nums">
-                    {r.ioWriteBytes != null ? formatBytes(r.ioWriteBytes) : '-'}
-                  </TableCell>
+                  {showIO && (
+                    <>
+                      <TableCell className="text-right text-muted-foreground tabular-nums">
+                        {r.ioReadBytes != null ? formatBytes(r.ioReadBytes) : '-'}
+                      </TableCell>
+                      <TableCell className="text-right text-muted-foreground tabular-nums">
+                        {r.ioWriteBytes != null ? formatBytes(r.ioWriteBytes) : '-'}
+                      </TableCell>
+                    </>
+                  )}
                 </TableRow>
               );
             })}

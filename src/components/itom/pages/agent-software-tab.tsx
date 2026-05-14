@@ -295,7 +295,7 @@ function softwareSlug(name: string): string {
   return tokens.slice(0, 2).join('');
 }
 
-function SoftwareIcon({ name }: { name: string }) {
+export function SoftwareIcon({ name }: { name: string }) {
   // Generic-Microsoft check happens before useState so we don't waste a
   // render on the chain-fallback path for things we know are pure inline.
   // Specific Microsoft products are handled by ICON_OVERRIDES below.

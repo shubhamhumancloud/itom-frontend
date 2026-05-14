@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -12,6 +13,7 @@ import { agentLabel, formatRelativeTime, truncateMiddle } from '@/lib/format';
 import { StatusBadge } from '@/components/itom/status-badge';
 
 export function AgentsTable() {
+  const router = useRouter();
   const { data = [], isLoading } = useAgents();
   const [search, setSearch] = useState('');
   const showOverlay = useColdLoad(isLoading, data.length > 0);
@@ -81,27 +83,31 @@ export function AgentsTable() {
                     .slice(0, 2)
                     .join(', ');
                   const label = agentLabel(agent.os, agent.agentId);
+                  const href = `/agents/${agent.agentId}`;
                   return (
-                    <TableRow key={agent.agentId}>
+                    <TableRow
+                      key={agent.agentId}
+                      role="link"
+                      tabIndex={0}
+                      onClick={() => router.push(href)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          router.push(href);
+                        }
+                      }}
+                      className="cursor-pointer hover:bg-muted/50 focus:bg-muted/50 focus:outline-none"
+                    >
                       <TableCell>
-                        <Link
-                          href={`/agents/${agent.agentId}`}
-                          className="font-medium text-foreground hover:text-primary"
-                          title={agent.agentId}
-                        >
+                        <span className="font-medium text-foreground" title={agent.agentId}>
                           {label}
-                        </Link>
+                        </span>
                         <div className="font-mono text-[10px] text-muted-foreground">
                           {truncateMiddle(agent.agentId)}
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Link
-                          href={`/agents/${agent.agentId}`}
-                          className="text-foreground hover:text-primary"
-                        >
-                          {agent.hostname}
-                        </Link>
+                        <span className="text-foreground">{agent.hostname}</span>
                       </TableCell>
                       <TableCell className="text-muted-foreground">
                         {agent.os} · {agent.arch}

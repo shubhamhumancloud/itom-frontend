@@ -3,13 +3,10 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
-  BarChart3,
   GitBranch,
-  HardDrive,
   LayoutDashboard,
   ListChecks,
   LogOut,
-  Network,
   Radar,
   Server,
   Settings,
@@ -26,14 +23,6 @@ const groups: NavGroup[] = [
     items: [
       { href: '/', label: 'Dashboard', icon: LayoutDashboard },
       { href: '/agents', label: 'Agents', icon: Server },
-    ],
-  },
-  {
-    label: 'Monitoring',
-    items: [
-      { href: '/metrics', label: 'Metrics', icon: BarChart3 },
-      { href: '/network', label: 'Network', icon: Network },
-      { href: '/disk', label: 'Disk', icon: HardDrive },
     ],
   },
   {
