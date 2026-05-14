@@ -10,9 +10,6 @@ import { AgentPicker, ALL_AGENTS_VALUE } from '@/components/itom/agent-picker';
 import { FetchProgressBar, LoadingOverlay, useColdLoad } from '@/components/ui/loaders';
 import { useAgent, useAgentStatusEvents } from '@/hooks/use-itom';
 import { agentLabel, formatBytes, formatRelativeTime } from '@/lib/format';
-import { AgentProcessesTab } from './agent-processes-tab';
-import { AgentHardwareTab } from './agent-hardware-tab';
-import { AgentSoftwareTab } from './agent-software-tab';
 import { cn } from '@/lib/utils';
 
 export function AgentDetailPage({ agentId }: { agentId: string }) {
@@ -71,21 +68,8 @@ export function AgentDetailPage({ agentId }: { agentId: string }) {
       <Tabs defaultValue="overview">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="processes">Processes</TabsTrigger>
-          <TabsTrigger value="hardware">Hardware</TabsTrigger>
-          <TabsTrigger value="software">Software</TabsTrigger>
           <TabsTrigger value="status-events">Status log</TabsTrigger>
         </TabsList>
-
-        <TabsContent value="processes" className="mt-4">
-          <AgentProcessesTab agentId={agentId} />
-        </TabsContent>
-        <TabsContent value="hardware" className="mt-4">
-          <AgentHardwareTab agentId={agentId} />
-        </TabsContent>
-        <TabsContent value="software" className="mt-4">
-          <AgentSoftwareTab agentId={agentId} />
-        </TabsContent>
 
         <TabsContent value="overview" className="mt-4">
           <Card className="border-border/90 shadow-(--shadow-soft)">
