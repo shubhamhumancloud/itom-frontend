@@ -42,13 +42,11 @@ export function AgentHardwareTab({ agentId }: { agentId: string }) {
   const sensors = useAgentSensors(agentId, undefined, 240);
   const gpu = useAgentGpu(agentId);
   const gpuHistory = useAgentGpuHistory(agentId, 120);
-  const diskHealth = useAgentDiskHealth(agentId);
   const isFetching =
     battery.isFetching ||
     sensors.isFetching ||
     gpu.isFetching ||
-    gpuHistory.isFetching ||
-    diskHealth.isFetching;
+    gpuHistory.isFetching;
 
   return (
     <div className="space-y-4">
