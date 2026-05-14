@@ -15,6 +15,10 @@ import { cn } from '@/lib/utils';
  * Skeletons use the `Skeleton` primitive (animate-pulse bg-muted),
  * and the Spinner re-exports `@swar-da/humancloud-ui`'s arc SVG so
  * it follows the surrounding `text-*` color via `currentColor`.
+ *
+ * Note: there is no top-of-section progress bar — background refetches
+ * happen silently. The only loading affordance is the cold-load
+ * LoadingOverlay (blur + spinner) on the very first fetch.
  */
 
 export function Spinner({
@@ -74,7 +78,7 @@ export function LoadingOverlay({
  * `false` for every subsequent refetch / agent switch.
  *
  * Pair with `LoadingOverlay` so the blur shows on initial page entry
- * only, and later refreshes use `FetchProgressBar` (subtle bar) instead.
+ * only — background refetches happen silently with no visual marker.
  */
 export function useColdLoad(isLoading: boolean, hasData: boolean): boolean {
   const [seenData, setSeenData] = useState(hasData);
@@ -82,38 +86,6 @@ export function useColdLoad(isLoading: boolean, hasData: boolean): boolean {
     if (hasData && !seenData) setSeenData(true);
   }, [hasData, seenData]);
   return isLoading && !seenData;
-}
-
-/**
- * Thin animated progress bar that shows whenever a tab/section is
- * background-fetching. Skeletons cover the cold first-load case; this
- * gives feedback on every tab switch, because TanStack Query refetches
- * on mount and `isFetching` flips true briefly even when cached data
- * is already on screen.
- *
- * Renders an indeterminate sliding bar inside a thin track. Hidden
- * when `isFetching` is false so it doesn't consume layout space.
- */
-export function FetchProgressBar({
-  isFetching,
-  className,
-}: {
-  isFetching?: boolean;
-  className?: string;
-}) {
-  if (!isFetching) return null;
-  return (
-    <div
-      role="progressbar"
-      aria-busy="true"
-      className={cn(
-        'relative h-0.5 w-full overflow-hidden rounded-full bg-muted/60',
-        className,
-      )}
-    >
-      <div className="absolute inset-y-0 w-1/3 animate-[fetch-slide_1.1s_ease-in-out_infinite] rounded-full bg-primary" />
-    </div>
-  );
 }
 
 export function InlineLoader({

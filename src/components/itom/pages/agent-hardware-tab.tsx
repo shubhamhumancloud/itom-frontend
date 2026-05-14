@@ -26,7 +26,6 @@ import {
   useAgentGpuHistory,
   useAgentSensors,
 } from '@/hooks/use-itom';
-import { FetchProgressBar } from '@/components/ui/loaders';
 import {
   formatBytes,
   formatDuration,
@@ -35,22 +34,8 @@ import {
 } from '@/lib/format';
 
 export function AgentHardwareTab({ agentId }: { agentId: string }) {
-  // Roll up fetching state across all hardware queries so a single
-  // top-of-tab progress bar shows whenever any of the sections are
-  // refreshing — without four separate spinners.
-  const battery = useAgentBattery(agentId, 60);
-  const sensors = useAgentSensors(agentId, undefined, 240);
-  const gpu = useAgentGpu(agentId);
-  const gpuHistory = useAgentGpuHistory(agentId, 120);
-  const isFetching =
-    battery.isFetching ||
-    sensors.isFetching ||
-    gpu.isFetching ||
-    gpuHistory.isFetching;
-
   return (
     <div className="space-y-4">
-      <FetchProgressBar isFetching={isFetching} />
       <BatterySection agentId={agentId} />
       <SensorsSection agentId={agentId} />
       <GpuSection agentId={agentId} />

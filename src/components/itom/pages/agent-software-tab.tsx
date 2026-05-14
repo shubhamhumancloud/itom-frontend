@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/table';
 import { useAgentSoftware } from '@/hooks/use-itom';
 import { useBottomObserver } from '@/hooks/use-bottom-observer';
-import { FetchProgressBar, LoadingMoreRow, TableSkeleton } from '@/components/ui/loaders';
+import { LoadingMoreRow, TableSkeleton } from '@/components/ui/loaders';
 import { formatBytes } from '@/lib/format';
 
 export function AgentSoftwareTab({ agentId }: { agentId: string }) {
@@ -34,7 +34,6 @@ export function AgentSoftwareTab({ agentId }: { agentId: string }) {
     hasNextPage,
     isFetchingNextPage,
     isLoading,
-    isFetching,
   } = useAgentSoftware(agentId, search);
 
   const items = useMemo(
@@ -50,7 +49,6 @@ export function AgentSoftwareTab({ agentId }: { agentId: string }) {
 
   return (
     <Card className="border-border/90 shadow-(--shadow-soft)">
-      <FetchProgressBar isFetching={isFetching && !isLoading} className="mx-3 mt-3" />
       <CardHeader className="flex flex-row items-center justify-between gap-4 pb-3">
         <div>
           <CardTitle className="flex items-center gap-2 text-base font-semibold">

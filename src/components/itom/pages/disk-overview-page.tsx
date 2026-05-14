@@ -23,7 +23,7 @@ import { useAgentDisk, useAgents } from '@/hooks/use-itom';
 import { formatBytes, formatPercent } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { AgentPicker, ALL_AGENTS_VALUE } from '@/components/itom/agent-picker';
-import { FetchProgressBar, LoadingMoreRow, LoadingOverlay, useColdLoad } from '@/components/ui/loaders';
+import { LoadingMoreRow, LoadingOverlay, useColdLoad } from '@/components/ui/loaders';
 import { PageHeader } from '@/components/app/page-header';
 
 /**
@@ -52,7 +52,7 @@ export function DiskOverviewPage({
   const agentId = isEmbedded ? externalAgentId! : internalAgentId;
   const setAgentId = setInternalAgentId;
 
-  const { data: disk = [], isFetching, isLoading } = useAgentDisk(agentId, 1000);
+  const { data: disk = [], isLoading } = useAgentDisk(agentId, 1000);
   const showOverlay = useColdLoad(isLoading, disk.length > 0);
 
   const [selectedDiskMount, setSelectedDiskMount] = useState('');
@@ -194,7 +194,6 @@ export function DiskOverviewPage({
   return (
     <div className="flex h-full w-full flex-col gap-4">
       <LoadingOverlay isLoading={showOverlay} />
-      <FetchProgressBar isFetching={isFetching && !showOverlay} />
       {!isEmbedded && (
         <PageHeader
           title="Disk"

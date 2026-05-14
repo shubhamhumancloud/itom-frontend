@@ -24,7 +24,7 @@ import {
 import { useAgentNetwork, useAgents } from '@/hooks/use-itom';
 import { formatBytes, formatRelativeTime } from '@/lib/format';
 import { AgentPicker, ALL_AGENTS_VALUE } from '@/components/itom/agent-picker';
-import { FetchProgressBar, LoadingMoreRow, LoadingOverlay, useColdLoad } from '@/components/ui/loaders';
+import { LoadingMoreRow, LoadingOverlay, useColdLoad } from '@/components/ui/loaders';
 import { PageHeader } from '@/components/app/page-header';
 
 /**
@@ -54,7 +54,7 @@ export function NetworkOverviewPage({
   const agentId = isEmbedded ? externalAgentId! : internalAgentId;
   const setAgentId = setInternalAgentId;
 
-  const { data: network = [], isFetching, isLoading } = useAgentNetwork(agentId, 1000);
+  const { data: network = [], isLoading } = useAgentNetwork(agentId, 1000);
   const showOverlay = useColdLoad(isLoading, network.length > 0);
 
   // Derive per-interface throughput from byte-counter deltas. We need
@@ -325,7 +325,6 @@ export function NetworkOverviewPage({
     // remaining vertical space instead of capping at a fixed 460px.
     <div className="flex h-full w-full flex-col gap-4">
       <LoadingOverlay isLoading={showOverlay} />
-      <FetchProgressBar isFetching={isFetching && !showOverlay} />
       {!isEmbedded && (
         <PageHeader
           title="Network"

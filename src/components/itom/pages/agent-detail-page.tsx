@@ -15,7 +15,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { StatusBadge } from '@/components/itom/status-badge';
-import { FetchProgressBar, LoadingOverlay, useColdLoad } from '@/components/ui/loaders';
+import { LoadingOverlay, useColdLoad } from '@/components/ui/loaders';
 import { useAgent, useAgentStatusEvents } from '@/hooks/use-itom';
 import { agentLabel, formatBytes, formatRelativeTime } from '@/lib/format';
 import { cn } from '@/lib/utils';
@@ -31,16 +31,11 @@ export function AgentDetailPage({ agentId }: { agentId: string }) {
   const statusEventsQ = useAgentStatusEvents(agentId, 100);
   const agent = agentQ.data;
   const statusEvents = statusEventsQ.data ?? [];
-  // Page-wide fetch indicator: pulses whenever either the agent header
-  // data or the status log are background-refreshing. Child tabs run
-  // their own queries and surface their own bars.
-  const isFetching = agentQ.isFetching || statusEventsQ.isFetching;
   const showOverlay = useColdLoad(agentQ.isLoading, !!agent);
 
   return (
     <div className="w-full space-y-4">
       <LoadingOverlay isLoading={showOverlay} />
-      <FetchProgressBar isFetching={isFetching && !showOverlay} />
       <div className="min-w-0">
         <Link
           href="/agents"
