@@ -58,6 +58,25 @@
   --color-brand-800: var(--brand-800);
   --color-brand-900: var(--brand-900);
   --color-brand-950: var(--brand-950);
+
+  /* Hear DS — severity badge colors (solid fills, white text) */
+  --color-severity-critical: var(--severity-critical);
+  --color-severity-high: var(--severity-high);
+  --color-severity-medium: var(--severity-medium);
+  --color-severity-low: var(--severity-low);
+
+  /* Hear DS — status badge bg/fg pairs (light bg, colored text) */
+  --color-status-investigation: var(--status-investigation-bg);
+  --color-status-investigation-foreground: var(--status-investigation-fg);
+  --color-status-pending: var(--status-pending-bg);
+  --color-status-pending-foreground: var(--status-pending-fg);
+  --color-status-review: var(--status-review-bg);
+  --color-status-review-foreground: var(--status-review-fg);
+
+  /* Hear DS — only two elevations are used; alias them as Tailwind
+     shadow utilities (`shadow-metric-card`, `shadow-content-card`). */
+  --shadow-metric-card: var(--shadow-metric-card);
+  --shadow-content-card: var(--shadow-content-card);
 }
 
 :root {
@@ -73,7 +92,7 @@
   --brand-900: #56301f;
   --brand-950: #2e1810;
 
-  --background: #f8f8fc;
+  --background: #ffffff;
   --foreground: #1b1730;
   --card: #ffffff;
   --card-foreground: #1b1730;
@@ -84,7 +103,7 @@
   --secondary: #f1effc;
   --secondary-foreground: #4b359d;
   --muted: #f2f0fa;
-  --muted-foreground: #686287;
+  --muted-foreground: #7c7c83;
   --accent: #ece8ff;
   --accent-foreground: #4b359d;
   --destructive: #dc2626;
@@ -102,13 +121,13 @@
   --font-mono: "JetBrains Mono", monospace;
   --sand: #f4f2fb;
   --sand-foreground: #4e4770;
-  --sidebar: #f5f4fa;
-  --sidebar-foreground: #403963;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #1a1a1e;
   --sidebar-primary: #d89477;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #fae8de;
-  --sidebar-accent-foreground: #7e472f;
-  --sidebar-border: #e6e2f3;
+  --sidebar-accent: #fdf6f2;
+  --sidebar-accent-foreground: #a35e44;
+  --sidebar-border: #e6e8f0;
   --sidebar-ring: #d89477;
   --status-online: #059669;
   --status-offline: #dc2626;
@@ -116,6 +135,24 @@
   --kpi-good: #059669;
   --kpi-warn: #d97706;
   --kpi-bad: #dc2626;
+
+  /* Severity badges — solid bg + white text (per Hear DS) */
+  --severity-critical: #dc2626;
+  --severity-high: #f59e0b;
+  --severity-medium: #14b8a6;
+  --severity-low: #6b7280;
+
+  /* Status badges — light bg + colored text (per Hear DS) */
+  --status-investigation-bg: #dbeafe;
+  --status-investigation-fg: #1e40af;
+  --status-pending-bg: #fef3c7;
+  --status-pending-fg: #92400e;
+  --status-review-bg: #f3e8ff;
+  --status-review-fg: #6b21a8;
+
+  /* Card shadows — Hear DS uses just two elevation levels */
+  --shadow-metric-card: 1px 1px 6.2px rgb(227 227 227 / 0.25);
+  --shadow-content-card: 1px 1px 7.25px rgb(222 222 222 / 0.25);
 }
 
 .dark {
@@ -144,6 +181,23 @@
   --sidebar-accent-foreground: #ecb091;
   --sidebar-border: #2d2750;
   --sidebar-ring: #d89477;
+
+  /* Severity / status badges keep their saturated colors in dark mode
+     (the surrounding card is dark, light tints would wash out) */
+  --severity-critical: #ef4444;
+  --severity-high: #f59e0b;
+  --severity-medium: #14b8a6;
+  --severity-low: #9ca3af;
+
+  --status-investigation-bg: #1e3a8a;
+  --status-investigation-fg: #93c5fd;
+  --status-pending-bg: #78350f;
+  --status-pending-fg: #fcd34d;
+  --status-review-bg: #4c1d95;
+  --status-review-fg: #d8b4fe;
+
+  --shadow-metric-card: 1px 1px 6.2px rgb(0 0 0 / 0.4);
+  --shadow-content-card: 1px 1px 7.25px rgb(0 0 0 / 0.5);
 }
 
 @layer base {

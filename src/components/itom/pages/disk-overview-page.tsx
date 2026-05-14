@@ -24,6 +24,7 @@ import { formatBytes, formatPercent } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { AgentPicker, ALL_AGENTS_VALUE } from '@/components/itom/agent-picker';
 import { FetchProgressBar, LoadingMoreRow, LoadingOverlay, useColdLoad } from '@/components/ui/loaders';
+import { PageHeader } from '@/components/app/page-header';
 
 /**
  * Sidebar Monitoring → Disk page.
@@ -186,30 +187,25 @@ export function DiskOverviewPage() {
     <div className="flex h-full w-full flex-col gap-4">
       <LoadingOverlay isLoading={showOverlay} />
       <FetchProgressBar isFetching={isFetching && !showOverlay} />
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="font-display text-2xl font-semibold tracking-tight">
-            Disk
-          </h1>
-          <p className="text-xs text-muted-foreground">
-            Mountpoint utilization, capacity and raw samples for the selected
-            agent.
-          </p>
-        </div>
-        <AgentPicker
-          value={agentId}
-          onChange={(v) => {
-            // "All agents" doesn't make sense for per-mountpoint disk
-            // utilization — fall back to the first concrete agent.
-            if (!v || v === ALL_AGENTS_VALUE) {
-              setAgentId(agents[0]?.agentId ?? '');
-              return;
-            }
-            setAgentId(v);
-          }}
-          placeholder="Select agent"
-        />
-      </div>
+      <PageHeader
+        title="Disk"
+        description="Mountpoint utilization, capacity and raw samples for the selected agent."
+        action={
+          <AgentPicker
+            value={agentId}
+            onChange={(v) => {
+              // "All agents" doesn't make sense for per-mountpoint disk
+              // utilization — fall back to the first concrete agent.
+              if (!v || v === ALL_AGENTS_VALUE) {
+                setAgentId(agents[0]?.agentId ?? '');
+                return;
+              }
+              setAgentId(v);
+            }}
+            placeholder="Select agent"
+          />
+        }
+      />
 
       <Card className="border-border/90 shadow-(--shadow-soft)">
         <CardHeader className="flex flex-row items-center justify-between pb-3">

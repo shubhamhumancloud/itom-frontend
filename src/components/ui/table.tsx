@@ -57,7 +57,8 @@ function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
     <tr
       data-slot="table-row"
       className={cn(
-        "border-b transition-colors hover:bg-muted/50 has-aria-expanded:bg-muted/50 data-[state=selected]:bg-muted",
+        // Hear DS: hover swaps in a subtle gray; no zebra striping.
+        "border-b border-border transition-colors hover:bg-muted/40 has-aria-expanded:bg-muted/40 data-[state=selected]:bg-muted",
         className
       )}
       {...props}
@@ -70,7 +71,9 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
     <th
       data-slot="table-head"
       className={cn(
-        "h-10 px-2 text-left align-middle font-medium whitespace-nowrap text-foreground [&:has([role=checkbox])]:pr-0",
+        // Hear DS table header: 14 / SemiBold / muted-foreground,
+        // 12px 16px padding, no bottom-cell border (handled by row).
+        "h-11 px-4 text-left align-middle text-sm font-semibold whitespace-nowrap text-muted-foreground [&:has([role=checkbox])]:pr-0",
         className
       )}
       {...props}
@@ -83,7 +86,9 @@ function TableCell({ className, ...props }: React.ComponentProps<"td">) {
     <td
       data-slot="table-cell"
       className={cn(
-        "p-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0",
+        // Hear DS row height ≈ 56px (py-3 + 14px line-height ≈ 52, +
+        // border). 16px horizontal padding to match the head.
+        "px-4 py-3 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0",
         className
       )}
       {...props}

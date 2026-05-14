@@ -25,6 +25,7 @@ import { useAgentNetwork, useAgents } from '@/hooks/use-itom';
 import { formatBytes, formatRelativeTime } from '@/lib/format';
 import { AgentPicker, ALL_AGENTS_VALUE } from '@/components/itom/agent-picker';
 import { FetchProgressBar, LoadingMoreRow, LoadingOverlay, useColdLoad } from '@/components/ui/loaders';
+import { PageHeader } from '@/components/app/page-header';
 
 /**
  * Sidebar Monitoring → Network page.
@@ -317,29 +318,25 @@ export function NetworkOverviewPage() {
     <div className="flex h-full w-full flex-col gap-4">
       <LoadingOverlay isLoading={showOverlay} />
       <FetchProgressBar isFetching={isFetching && !showOverlay} />
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="font-display text-2xl font-semibold tracking-tight">
-            Network
-          </h1>
-          <p className="text-xs text-muted-foreground">
-            Per-interface throughput and packet rates for the selected agent.
-          </p>
-        </div>
-        <AgentPicker
-          value={agentId}
-          onChange={(v) => {
-            // "All agents" doesn't make sense for per-interface throughput —
-            // fall back to the first concrete agent.
-            if (!v || v === ALL_AGENTS_VALUE) {
-              setAgentId(agents[0]?.agentId ?? '');
-              return;
-            }
-            setAgentId(v);
-          }}
-          placeholder="Select agent"
-        />
-      </div>
+      <PageHeader
+        title="Network"
+        description="Per-interface throughput and packet rates for the selected agent."
+        action={
+          <AgentPicker
+            value={agentId}
+            onChange={(v) => {
+              // "All agents" doesn't make sense for per-interface throughput —
+              // fall back to the first concrete agent.
+              if (!v || v === ALL_AGENTS_VALUE) {
+                setAgentId(agents[0]?.agentId ?? '');
+                return;
+              }
+              setAgentId(v);
+            }}
+            placeholder="Select agent"
+          />
+        }
+      />
 
       {/* Last-hour summary — sits above the per-interface card. Has its
           own natural height (chart + 4 KPI tiles), shrink-0 so the table
