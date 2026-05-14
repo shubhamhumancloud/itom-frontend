@@ -34,15 +34,23 @@ import { PageHeader } from '@/components/app/page-header';
  * per-mount utilization only makes sense per host. "All agents"
  * from the picker falls back to the first concrete agent.
  */
-export function DiskOverviewPage() {
-  const [agentId, setAgentId] = useState<string>('');
+export function DiskOverviewPage({
+  agentId: externalAgentId,
+}: { agentId?: string } = {}) {
+  // Same embed-vs-standalone split used by NetworkOverviewPage so the
+  // page can be reused as a tab inside the per-agent detail view.
+  const isEmbedded = externalAgentId !== undefined;
+  const [internalAgentId, setInternalAgentId] = useState<string>('');
   const { data: agents = [] } = useAgents();
 
   useEffect(() => {
-    if (!agentId && agents.length > 0) {
-      setAgentId(agents[0].agentId);
+    if (!isEmbedded && !internalAgentId && agents.length > 0) {
+      setInternalAgentId(agents[0].agentId);
     }
-  }, [agentId, agents]);
+  }, [isEmbedded, internalAgentId, agents]);
+
+  const agentId = isEmbedded ? externalAgentId! : internalAgentId;
+  const setAgentId = setInternalAgentId;
 
   const { data: disk = [], isFetching, isLoading } = useAgentDisk(agentId, 1000);
   const showOverlay = useColdLoad(isLoading, disk.length > 0);
@@ -187,25 +195,25 @@ export function DiskOverviewPage() {
     <div className="flex h-full w-full flex-col gap-4">
       <LoadingOverlay isLoading={showOverlay} />
       <FetchProgressBar isFetching={isFetching && !showOverlay} />
-      <PageHeader
-        title="Disk"
-        description="Mountpoint utilization, capacity and raw samples for the selected agent."
-        action={
-          <AgentPicker
-            value={agentId}
-            onChange={(v) => {
-              // "All agents" doesn't make sense for per-mountpoint disk
-              // utilization — fall back to the first concrete agent.
-              if (!v || v === ALL_AGENTS_VALUE) {
-                setAgentId(agents[0]?.agentId ?? '');
-                return;
-              }
-              setAgentId(v);
-            }}
-            placeholder="Select agent"
-          />
-        }
-      />
+      {!isEmbedded && (
+        <PageHeader
+          title="Disk"
+          description="Mountpoint utilization, capacity and raw samples for the selected agent."
+          action={
+            <AgentPicker
+              value={agentId}
+              onChange={(v) => {
+                if (!v || v === ALL_AGENTS_VALUE) {
+                  setAgentId(agents[0]?.agentId ?? '');
+                  return;
+                }
+                setAgentId(v);
+              }}
+              placeholder="Select agent"
+            />
+          }
+        />
+      )}
 
       <Card className="border-border/90 shadow-(--shadow-soft)">
         <CardHeader className="flex flex-row items-center justify-between pb-3">

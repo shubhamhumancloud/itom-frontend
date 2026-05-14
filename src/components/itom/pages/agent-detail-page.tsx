@@ -1,19 +1,32 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
+import {
+  Activity,
+  ArrowLeft,
+  BarChart3,
+  Cpu,
+  HardDrive,
+  History,
+  LayoutDashboard,
+  Network as NetworkIcon,
+  Package,
+} from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { StatusBadge } from '@/components/itom/status-badge';
-import { AgentPicker, ALL_AGENTS_VALUE } from '@/components/itom/agent-picker';
 import { FetchProgressBar, LoadingOverlay, useColdLoad } from '@/components/ui/loaders';
 import { useAgent, useAgentStatusEvents } from '@/hooks/use-itom';
 import { agentLabel, formatBytes, formatRelativeTime } from '@/lib/format';
 import { cn } from '@/lib/utils';
+import { AgentProcessesTab } from './agent-processes-tab';
+import { AgentHardwareTab } from './agent-hardware-tab';
+import { AgentSoftwareTab } from './agent-software-tab';
+import { AgentPerformanceTab } from './agent-performance-tab';
+import { NetworkOverviewPage } from './network-overview-page';
+import { DiskOverviewPage } from './disk-overview-page';
 
 export function AgentDetailPage({ agentId }: { agentId: string }) {
-  const router = useRouter();
   const agentQ = useAgent(agentId);
   const statusEventsQ = useAgentStatusEvents(agentId, 100);
   const agent = agentQ.data;
@@ -28,48 +41,76 @@ export function AgentDetailPage({ agentId }: { agentId: string }) {
     <div className="w-full space-y-4">
       <LoadingOverlay isLoading={showOverlay} />
       <FetchProgressBar isFetching={isFetching && !showOverlay} />
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
-          <Link
-            href="/agents"
-            className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            Back to agents
-          </Link>
+      <div className="min-w-0">
+        <Link
+          href="/agents"
+          className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Back to agents
+        </Link>
+        <div className="flex flex-wrap items-center gap-3">
           <h1 className="font-display text-2xl font-semibold tracking-tight">
             {agentLabel(agent?.os, agentId)}
           </h1>
-          <p className="text-xs text-muted-foreground">
-            {agent?.hostname ?? '-'}
-          </p>
-          <p className="font-mono text-[10px] text-muted-foreground" title={agentId}>
-            {agentId}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            {agent?.os} · {agent?.arch} · {agent?.platform}{' '}
-            {agent?.platformVersion}
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-3">
-          {/* Agent quick-switcher — jump between hosts without leaving the page. */}
-          <AgentPicker
-            value={agentId}
-            placeholder="Switch agent…"
-            onChange={(v) => {
-              if (!v || v === ALL_AGENTS_VALUE || v === agentId) return;
-              router.push(`/agents/${encodeURIComponent(v)}`);
-            }}
-          />
           {agent && <StatusBadge status={agent.status} />}
         </div>
       </div>
 
       <Tabs defaultValue="overview">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="status-events">Status log</TabsTrigger>
+        <TabsList className="!h-12 gap-1 p-1.5">
+          <TabsTrigger value="overview" className={tabTriggerCls}>
+            <LayoutDashboard />
+            Overview
+          </TabsTrigger>
+          <TabsTrigger value="metrics" className={tabTriggerCls}>
+            <BarChart3 />
+            Metrics
+          </TabsTrigger>
+          <TabsTrigger value="processes" className={tabTriggerCls}>
+            <Activity />
+            Processes
+          </TabsTrigger>
+          <TabsTrigger value="hardware" className={tabTriggerCls}>
+            <Cpu />
+            Hardware
+          </TabsTrigger>
+          <TabsTrigger value="software" className={tabTriggerCls}>
+            <Package />
+            Software
+          </TabsTrigger>
+          <TabsTrigger value="network" className={tabTriggerCls}>
+            <NetworkIcon />
+            Network
+          </TabsTrigger>
+          <TabsTrigger value="disk" className={tabTriggerCls}>
+            <HardDrive />
+            Disk
+          </TabsTrigger>
+          <TabsTrigger value="status-events" className={tabTriggerCls}>
+            <History />
+            Status log
+          </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="metrics" className="mt-4">
+          <AgentPerformanceTab agentId={agentId} />
+        </TabsContent>
+        <TabsContent value="processes" className="mt-4">
+          <AgentProcessesTab agentId={agentId} os={agent?.os} />
+        </TabsContent>
+        <TabsContent value="hardware" className="mt-4">
+          <AgentHardwareTab agentId={agentId} />
+        </TabsContent>
+        <TabsContent value="software" className="mt-4">
+          <AgentSoftwareTab agentId={agentId} />
+        </TabsContent>
+        <TabsContent value="network" className="mt-4">
+          <NetworkOverviewPage agentId={agentId} />
+        </TabsContent>
+        <TabsContent value="disk" className="mt-4">
+          <DiskOverviewPage agentId={agentId} />
+        </TabsContent>
 
         <TabsContent value="overview" className="mt-4">
           <Card className="border-border/90 shadow-(--shadow-soft)">
@@ -77,6 +118,19 @@ export function AgentDetailPage({ agentId }: { agentId: string }) {
               <CardTitle className="text-base font-semibold">Device facts</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-4 text-sm md:grid-cols-2">
+              <Field label="Hostname" value={agent?.hostname ?? '-'} />
+              <Field
+                label="Agent ID"
+                value={
+                  <span className="break-all font-mono text-xs" title={agentId}>
+                    {agentId}
+                  </span>
+                }
+              />
+              <Field
+                label="Operating system"
+                value={`${agent?.os ?? '-'} · ${agent?.arch ?? '-'} · ${agent?.platform ?? '-'} ${agent?.platformVersion ?? ''}`.trim()}
+              />
               <Field label="CPU" value={`${agent?.cpuModel ?? '-'} (${agent?.cpuCores ?? '?'} cores)`} />
               <Field label="Total memory" value={formatBytes(agent?.totalMemoryBytes)} />
               <Field label="Total disk" value={formatBytes(agent?.totalDiskBytes)} />
@@ -125,6 +179,20 @@ export function AgentDetailPage({ agentId }: { agentId: string }) {
     </div>
   );
 }
+
+// Shared className for every TabsTrigger on this page.
+//   - cursor-pointer                          → hand cursor on hover.
+//   - gap-2 px-4 text-sm + size-4 svg override → bigger pill + icon sizing.
+//   - hover:text-foreground/60                → keep inactive labels muted on
+//                                               hover (override shadcn's
+//                                               default darken-to-foreground).
+//   - data-active:hover:text-primary-foreground → restore white text when the
+//                                                 user hovers the active pill
+//                                                 (otherwise the line above
+//                                                 would turn its label gray).
+const tabTriggerCls =
+  "cursor-pointer gap-2 px-4 text-sm [&_svg:not([class*='size-'])]:size-4 " +
+  "hover:text-foreground/60 data-active:hover:text-primary-foreground";
 
 function Field({ label, value }: { label: string; value: React.ReactNode }) {
   return (
