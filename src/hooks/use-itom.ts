@@ -164,15 +164,6 @@ export function useAgentSensors(
   });
 }
 
-export function useAgentDiskHealth(agentId: string) {
-  return useQuery({
-    queryKey: ['disk-health', agentId],
-    queryFn: () => observabilityApi.diskHealth(agentId),
-    enabled: !!agentId,
-    refetchInterval: 60_000,
-  });
-}
-
 export function useAgentGpu(agentId: string) {
   return useQuery({
     queryKey: ['gpu', agentId],

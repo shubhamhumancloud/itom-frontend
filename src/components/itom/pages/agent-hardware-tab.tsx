@@ -11,22 +11,17 @@ import {
   YAxis,
 } from 'recharts';
 import {
-  AlertTriangle,
   BatteryCharging,
   BatteryFull,
-  CheckCircle2,
   Cpu,
   Fan,
-  HardDrive,
   Plug,
   Thermometer,
   Zap,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import {
   useAgentBattery,
-  useAgentDiskHealth,
   useAgentGpu,
   useAgentGpuHistory,
   useAgentSensors,
@@ -61,7 +56,6 @@ export function AgentHardwareTab({ agentId }: { agentId: string }) {
       <BatterySection agentId={agentId} />
       <SensorsSection agentId={agentId} />
       <GpuSection agentId={agentId} />
-      <DiskHealthSection agentId={agentId} />
     </div>
   );
 }
@@ -357,19 +351,27 @@ function GpuSection({ agentId }: { agentId: string }) {
                       g.memoryTotalBytes,
                     )}`}
                   />
-                  <Stat
-                    label="Temp · Power"
-                    value={
-                      g.temperatureC != null
-                        ? `${formatNumber(g.temperatureC)}°C`
-                        : '—'
-                    }
-                    sub={
-                      g.powerWatts != null
-                        ? `${formatNumber(g.powerWatts)} W`
-                        : ''
-                    }
-                  />
+                  {g.temperatureC != null ? (
+                    <Stat
+                      label="Temp · Power"
+                      value={`${formatNumber(g.temperatureC)}°C`}
+                      sub={
+                        g.powerWatts != null
+                          ? `${formatNumber(g.powerWatts)} W`
+                          : ''
+                      }
+                    />
+                  ) : (
+                    <Stat
+                      label="Power"
+                      value={
+                        g.powerWatts != null
+                          ? `${formatNumber(g.powerWatts)} W`
+                          : '—'
+                      }
+                      sub=""
+                    />
+                  )}
                 </div>
                 {series.length >= 2 && (
                   <div className="mt-3 h-24">
@@ -411,149 +413,6 @@ function GpuSection({ agentId }: { agentId: string }) {
       </CardContent>
     </Card>
   );
-}
-
-// ---------------- SMART disk health ----------------
-
-function DiskHealthSection({ agentId }: { agentId: string }) {
-  const { data: drives = [] } = useAgentDiskHealth(agentId);
-
-  if (drives.length === 0) {
-    return (
-      <Card className="border-border/90 shadow-(--shadow-soft)">
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-base font-semibold">
-            <HardDrive className="h-4 w-4 text-muted-foreground" />
-            Drive health (SMART)
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <NotDetected text="No SMART data — install smartmontools on the host or check that physical disks are present." />
-        </CardContent>
-      </Card>
-    );
-  }
-
-  return (
-    <Card className="border-border/90 shadow-(--shadow-soft)">
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-base font-semibold">
-          <HardDrive className="h-4 w-4 text-cyan-600" />
-          Drive health (SMART)
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-          {drives.map((d) => (
-            <div
-              key={d.device}
-              className="rounded-lg border border-border bg-card p-3"
-            >
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <div className="font-medium">{d.model ?? d.device}</div>
-                  <div className="text-xs text-muted-foreground">
-                    {d.device}
-                  </div>
-                </div>
-                <DiskStatusBadge status={d.status} predicted={d.predictedFailure} />
-              </div>
-              <div className="mt-3 grid grid-cols-2 gap-2 text-sm md:grid-cols-4">
-                <Stat
-                  label="Temp"
-                  value={
-                    d.temperatureC != null
-                      ? `${formatNumber(d.temperatureC)}°C`
-                      : '—'
-                  }
-                  sub=""
-                />
-                <Stat
-                  label="Power-on"
-                  value={
-                    d.powerOnHours != null
-                      ? `${(d.powerOnHours / 24).toFixed(0)}d`
-                      : '—'
-                  }
-                  sub={
-                    d.powerOnHours != null
-                      ? `${d.powerOnHours.toLocaleString()} h`
-                      : ''
-                  }
-                />
-                <Stat
-                  label="Realloc"
-                  value={
-                    d.reallocatedSectors != null
-                      ? String(d.reallocatedSectors)
-                      : '—'
-                  }
-                  sub=""
-                  color={
-                    (d.reallocatedSectors ?? 0) > 0
-                      ? 'text-amber-600'
-                      : 'text-foreground'
-                  }
-                />
-                <Stat
-                  label="SSD life"
-                  value={
-                    d.wearLevelingPercent != null
-                      ? `${formatNumber(d.wearLevelingPercent)}%`
-                      : '—'
-                  }
-                  sub=""
-                  color={
-                    d.wearLevelingPercent != null &&
-                    toNumber(d.wearLevelingPercent) < 10
-                      ? 'text-red-600'
-                      : 'text-foreground'
-                  }
-                />
-              </div>
-              {d.predictedFailure && (
-                <div className="mt-3 flex items-center gap-2 rounded-md bg-red-50 px-2 py-1 text-xs text-red-700 dark:bg-red-950/40 dark:text-red-300">
-                  <AlertTriangle className="h-3.5 w-3.5" />
-                  SMART predicts imminent failure — back up data now.
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-function DiskStatusBadge({
-  status,
-  predicted,
-}: {
-  status: 'healthy' | 'warning' | 'failing' | 'unknown';
-  predicted: boolean;
-}) {
-  if (predicted || status === 'failing') {
-    return (
-      <Badge className="border-red-200 bg-red-50 text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300">
-        <AlertTriangle className="mr-1 h-3 w-3" /> Failing
-      </Badge>
-    );
-  }
-  if (status === 'warning') {
-    return (
-      <Badge className="border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-300">
-        Warning
-      </Badge>
-    );
-  }
-  if (status === 'healthy') {
-    return (
-      <Badge className="border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-300">
-        <CheckCircle2 className="mr-1 h-3 w-3" /> Healthy
-      </Badge>
-    );
-  }
-  return <Badge variant="outline">Unknown</Badge>;
 }
 
 // ---------------- Tiny shared bits ----------------

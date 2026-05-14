@@ -111,7 +111,7 @@ export function AgentProcessesTab({ agentId }: { agentId: string }) {
           <TableHeader>
             <TableRow>
               <SortHead label="Process" active={sort === 'name'} onClick={() => setSort('name')} />
-              <TableHead className="text-right">PIDs</TableHead>
+              <TableHead className="text-right">Instances</TableHead>
               <SortHead label="CPU" active={sort === 'cpu'} onClick={() => setSort('cpu')} className="text-right" />
               <TableHead className="text-right">Trend</TableHead>
               <SortHead label="Memory" active={sort === 'mem'} onClick={() => setSort('mem')} className="text-right" />
