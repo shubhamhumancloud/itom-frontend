@@ -1,5 +1,11 @@
 import { cn } from '@/lib/utils';
 
+/**
+ * Connection-state badge for an agent. Pill shape with a dot, distinct
+ * from the categorical SeverityBadge so the two read at a glance.
+ *
+ * Sizing follows Hear DS badge spec (h-6, text-xs, medium weight).
+ */
 export function StatusBadge({ status }: { status: string }) {
   const normalized = (status || 'unknown').toLowerCase();
   const tone =
@@ -12,7 +18,7 @@ export function StatusBadge({ status }: { status: string }) {
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium capitalize',
+        'inline-flex h-6 items-center gap-1.5 rounded-full px-3 text-xs font-medium capitalize',
         tone,
       )}
     >

@@ -22,6 +22,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { CardSkeleton, LoadingOverlay, useColdLoad } from '@/components/ui/loaders';
+import { PageHeader } from '@/components/app/page-header';
 import {
   Dialog,
   DialogContent,
@@ -213,33 +214,21 @@ export function ScanPage() {
   );
 
   return (
-    <div className="flex h-[calc(100vh-3.5rem)] flex-col gap-4 overflow-y-auto p-6">
+    <div className="flex h-[calc(100vh-3.5rem)] flex-col gap-6 overflow-y-auto px-6 py-6">
       <LoadingOverlay isLoading={showOverlay} />
-      <header className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="rounded-md bg-primary/10 p-2 text-primary">
-            <Radar className="h-5 w-5" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Network Scan</h1>
-            <p className="text-sm text-muted-foreground">
-              Sweep an IP range to discover everything alive — hostname, MAC, open
-              ports, TLS cert names, banner. Results land on the{' '}
-              <Link href="/discovery/topology" className="underline underline-offset-2">
-                topology page
-              </Link>
-              {' '}automatically.
-            </p>
-          </div>
-        </div>
-        <Link
-          href="/discovery/topology"
-          className="inline-flex items-center rounded-md border bg-background px-3 py-1.5 text-sm hover:bg-accent"
-        >
-          View topology
-          <ExternalLink className="ml-1 h-4 w-4" />
-        </Link>
-      </header>
+      <PageHeader
+        title="Network Scan"
+        description="Sweep an IP range to discover everything alive — hostname, MAC, open ports, TLS cert names, banner. Results land on the topology page automatically."
+        action={
+          <Link
+            href="/discovery/topology"
+            className="inline-flex items-center rounded-md border bg-background px-3 py-2 text-sm font-medium hover:bg-accent"
+          >
+            View topology
+            <ExternalLink className="ml-1 h-4 w-4" />
+          </Link>
+        }
+      />
 
       <div className="grid flex-1 grid-cols-1 gap-4 xl:grid-cols-[320px_1fr]">
         {/* Left column — Collectors */}

@@ -25,6 +25,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { LoadingOverlay, TableSkeleton, useColdLoad } from '@/components/ui/loaders';
+import { PageHeader } from '@/components/app/page-header';
 import { collectorsApi, discoveryApi, type DiscoveryHostRow } from '@/lib/api';
 
 const ALL_COLLECTORS = '__all__';
@@ -158,40 +159,29 @@ export function HostsPage() {
   };
 
   return (
-    <div className="flex h-[calc(100vh-3.5rem)] flex-col gap-4 overflow-y-auto p-6">
+    <div className="flex h-[calc(100vh-3.5rem)] flex-col gap-6 overflow-y-auto px-6 py-6">
       <LoadingOverlay isLoading={showOverlay} />
-      <header className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="rounded-md bg-primary/10 p-2 text-primary">
-            <ListChecks className="h-5 w-5" />
+      <PageHeader
+        title="Hosts"
+        description="Every discovered device — hostname, IP, MAC, open ports. Click a row to jump to its detail on the topology page."
+        action={
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => qc.invalidateQueries({ queryKey: ['discovery', 'hosts'] })}
+              disabled={hosts.isFetching}
+            >
+              <Loader2 className={`mr-1 h-4 w-4 ${hosts.isFetching ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
+            <Button variant="outline" size="sm" onClick={exportCsv} disabled={rows.length === 0}>
+              <Download className="mr-1 h-4 w-4" />
+              Export CSV
+            </Button>
           </div>
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Hosts</h1>
-            <p className="text-sm text-muted-foreground">
-              Every discovered device — hostname, IP, MAC, open ports.
-              Click a row to jump to its detail on the{' '}
-              <Link href="/discovery/topology" className="underline underline-offset-2">
-                topology page
-              </Link>.
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => qc.invalidateQueries({ queryKey: ['discovery', 'hosts'] })}
-            disabled={hosts.isFetching}
-          >
-            <Loader2 className={`mr-1 h-4 w-4 ${hosts.isFetching ? 'animate-spin' : ''}`} />
-            Refresh
-          </Button>
-          <Button variant="outline" size="sm" onClick={exportCsv} disabled={rows.length === 0}>
-            <Download className="mr-1 h-4 w-4" />
-            Export CSV
-          </Button>
-        </div>
-      </header>
+        }
+      />
 
       <Card>
         <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3 space-y-0 pb-3">

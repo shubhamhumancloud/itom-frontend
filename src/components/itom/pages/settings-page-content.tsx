@@ -6,6 +6,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { PageHeader } from '@/components/app/page-header';
 import { agentsApi, InstallTokenResponse } from '@/lib/api';
 import { decodeJwtClaims, readCookieValue } from '@/lib/auth';
 
@@ -87,13 +88,11 @@ export function SettingsPageContent() {
   });
 
   return (
-    <div className="w-full space-y-4">
-      <div>
-        <h1 className="font-display text-2xl font-semibold tracking-tight">Settings</h1>
-        <p className="text-xs text-muted-foreground">
-          Install ITOM agents and bind them to your tenant
-        </p>
-      </div>
+    <div className="w-full space-y-6">
+      <PageHeader
+        title="Settings"
+        description="Install ITOM agents and bind them to your tenant"
+      />
 
       {tenantId && (
         <Card className="border-border/90 shadow-(--shadow-soft)">

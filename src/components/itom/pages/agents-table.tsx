@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { LoadingOverlay, TableSkeleton, useColdLoad } from '@/components/ui/loaders';
+import { PageHeader } from '@/components/app/page-header';
 import { useAgents } from '@/hooks/use-itom';
 import { agentLabel, formatRelativeTime, truncateMiddle } from '@/lib/format';
 import { StatusBadge } from '@/components/itom/status-badge';
@@ -26,16 +27,14 @@ export function AgentsTable() {
   }, [data, search]);
 
   return (
-    <div className="w-full space-y-4">
+    <div className="w-full space-y-6">
       <LoadingOverlay isLoading={showOverlay} />
-      <div>
-        <h1 className="font-display text-2xl font-semibold tracking-tight">Agents</h1>
-        <p className="text-xs text-muted-foreground">
-          Every host reporting into your tenant
-        </p>
-      </div>
+      <PageHeader
+        title="Agents"
+        description="Every host reporting into your tenant"
+      />
 
-      <Card className="border-border/90 shadow-(--shadow-soft)">
+      <Card>
         <CardHeader className="flex flex-row items-center justify-between gap-4 pb-3">
           <CardTitle className="text-base font-semibold">All agents</CardTitle>
           <Input

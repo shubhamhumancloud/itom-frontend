@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { InlineLoader, LoadingOverlay, useColdLoad } from '@/components/ui/loaders';
 import { Skeleton } from '@/components/ui/skeleton';
+import { PageHeader } from '@/components/app/page-header';
 import { discoveryApi, type DiscoveryDevice, type DiscoveryTopology } from '@/lib/api';
 import { TopologyGraph } from './topology-graph';
 import { DeviceDetailPanel } from './device-detail-panel';
@@ -95,56 +96,49 @@ export function TopologyPage() {
   }, [devices.data, selectedDeviceId]);
 
   return (
-    <div className="flex h-[calc(100vh-3.5rem)] flex-col gap-4 p-6">
+    <div className="flex h-[calc(100vh-3.5rem)] flex-col gap-6 px-6 py-6">
       <LoadingOverlay isLoading={showOverlay} />
-      <header className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="rounded-md bg-primary/10 p-2 text-primary">
-            <GitBranch className="h-5 w-5" />
+      <PageHeader
+        title="Network Topology"
+        description="Fused view of every device the collectors discovered. Click any node for details."
+        action={
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                topology.refetch();
+                devices.refetch();
+              }}
+            >
+              <RefreshCw className="mr-1 h-4 w-4" />
+              Refresh
+            </Button>
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => seedDemo.mutate()}
+              disabled={seedDemo.isPending}
+            >
+              <Sparkles className="mr-1 h-4 w-4" />
+              {seedDemo.isPending ? 'Seeding…' : 'Seed demo data'}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                if (window.confirm('Wipe all demo-seeded devices, edges, and observations for this tenant? Real discovery data is not touched.')) {
+                  clearDemo.mutate();
+                }
+              }}
+              disabled={clearDemo.isPending}
+            >
+              <Trash2 className="mr-1 h-4 w-4" />
+              {clearDemo.isPending ? 'Clearing…' : 'Clear demo data'}
+            </Button>
           </div>
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Network Topology</h1>
-            <p className="text-sm text-muted-foreground">
-              Fused view of every device the collectors discovered. Click any node for details.
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              topology.refetch();
-              devices.refetch();
-            }}
-          >
-            <RefreshCw className="mr-1 h-4 w-4" />
-            Refresh
-          </Button>
-          <Button
-            variant="default"
-            size="sm"
-            onClick={() => seedDemo.mutate()}
-            disabled={seedDemo.isPending}
-          >
-            <Sparkles className="mr-1 h-4 w-4" />
-            {seedDemo.isPending ? 'Seeding…' : 'Seed demo data'}
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              if (window.confirm('Wipe all demo-seeded devices, edges, and observations for this tenant? Real discovery data is not touched.')) {
-                clearDemo.mutate();
-              }
-            }}
-            disabled={clearDemo.isPending}
-          >
-            <Trash2 className="mr-1 h-4 w-4" />
-            {clearDemo.isPending ? 'Clearing…' : 'Clear demo data'}
-          </Button>
-        </div>
-      </header>
+        }
+      />
 
       {empty ? (
         <Card className="flex-1">

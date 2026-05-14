@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useAgents } from '@/hooks/use-itom';
 import { AgentPicker } from '@/components/itom/agent-picker';
 import { InlineLoader, LoadingOverlay, useColdLoad } from '@/components/ui/loaders';
+import { PageHeader } from '@/components/app/page-header';
 import { AgentPerformanceTab } from './agent-performance-tab';
 
 /**
@@ -40,30 +41,25 @@ export function FleetMetricsPage() {
     // instead of pushing the page taller.
     <div className="flex h-full w-full flex-col gap-4">
       <LoadingOverlay isLoading={showOverlay} />
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="font-display text-2xl font-semibold tracking-tight">
-            Metrics
-          </h1>
-          <p className="text-xs text-muted-foreground">
-            CPU, memory, disk, network and GPU for the selected agent. Pick a
-            resource on the left to dive in.
-          </p>
-        </div>
-        <AgentPicker
-          value={agentId}
-          onChange={(v) => {
-            // AgentPicker's "All agents" sentinel doesn't make sense here
-            // — fall back to the first concrete agent if the user picks it.
-            if (!v || v === '__all__') {
-              setAgentId(agents[0]?.agentId ?? '');
-              return;
-            }
-            setAgentId(v);
-          }}
-          placeholder="Select agent"
-        />
-      </div>
+      <PageHeader
+        title="Metrics"
+        description="CPU, memory, disk, network and GPU for the selected agent. Pick a resource on the left to dive in."
+        action={
+          <AgentPicker
+            value={agentId}
+            onChange={(v) => {
+              // AgentPicker's "All agents" sentinel doesn't make sense here
+              // — fall back to the first concrete agent if the user picks it.
+              if (!v || v === '__all__') {
+                setAgentId(agents[0]?.agentId ?? '');
+                return;
+              }
+              setAgentId(v);
+            }}
+            placeholder="Select agent"
+          />
+        }
+      />
 
       <div className="flex min-h-0 flex-1 flex-col">
         {isLoading ? (
