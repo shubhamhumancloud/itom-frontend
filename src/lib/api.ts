@@ -430,6 +430,14 @@ export type ActivityTrendPoint = {
   agents: number;
 };
 
+export type StatusTimelinePoint = {
+  /** Top-of-hour timestamp (UTC ISO). */
+  hour: string;
+  online: number;
+  offline: number;
+  unknown: number;
+};
+
 export type OsDistributionEntry = { os: string; count: number };
 
 export type CpuByAgentEntry = {
@@ -447,6 +455,10 @@ export const dashboardApi = {
   summary: () => apiFetch<DashboardSummary>('/v1/dashboard/summary'),
   activityTrend: (days = 30) =>
     apiFetch<ActivityTrendPoint[]>(`/v1/dashboard/activity-trend?days=${days}`),
+  statusTimeline: (hours = 24) =>
+    apiFetch<StatusTimelinePoint[]>(
+      `/v1/dashboard/status-timeline?hours=${hours}`,
+    ),
   osDistribution: () =>
     apiFetch<OsDistributionEntry[]>('/v1/dashboard/os-distribution'),
   cpuByAgent: (limit = 8) =>

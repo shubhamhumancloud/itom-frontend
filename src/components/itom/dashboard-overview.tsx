@@ -1,19 +1,17 @@
 'use client';
 
 import {
-  Activity,
   AlertTriangle,
-  CheckCircle2,
   Cpu,
   HardDrive,
+  HeartPulse,
   HelpCircle,
   MemoryStick,
-  RefreshCw,
-  Server,
   ServerOff,
+  Users,
 } from 'lucide-react';
+import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { LoadingOverlay, useColdLoad } from '@/components/ui/loaders';
 import {
   Table,
   TableBody,
@@ -22,45 +20,66 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { LoadingOverlay, useColdLoad } from '@/components/ui/loaders';
 import {
   useAgents,
-  useCpuByAgent,
-  useDashboardSummary,
+  useFleetStats,
   useOsDistribution,
+  type MetricStats,
 } from '@/hooks/use-itom';
 import { agentLabel, formatPercent, formatRelativeTime } from '@/lib/format';
-import { KpiCard } from './kpi-card';
-import { StatusBadge } from './status-badge';
-import { CpuByAgentChart } from './charts/cpu-by-agent-chart';
+import { KpiCard, type KpiTone } from './kpi-card';
 import { OsDistributionChart } from './charts/os-distribution-chart';
-import { StatusDonut } from './charts/status-donut';
+import { DistributionHistogram } from './charts/distribution-histogram';
+import { StatusBadge } from './status-badge';
 import { PageHeader } from '@/components/app/page-header';
 
+/**
+ * Fleet-operations dashboard. Almost-entirely aggregate so the page
+ * scales to any fleet size; the one exception is the "Latest incidents"
+ * table on Row 4, which is bounded to 10 rows so it stays scannable
+ * even if 10k agents are offline at once.
+ *
+ * Rows
+ *   1. Attention — counts that should be zero for the fleet to be OK
+ *   2. Posture   — fleet utilization with p50/p95/max sub-line
+ *   3. Latest incidents + OS distribution
+ *   4. CPU / Memory / Disk distribution histograms
+ *
+ * TODO (backend): once `/v1/dashboard/fleet-stats` exists, drop the
+ * client-side percentile / category math from `useFleetStats` and
+ * call the endpoint directly.
+ */
 export function DashboardOverview() {
-  const summaryQ = useDashboardSummary();
-  const agentsQ = useAgents();
+  const stats = useFleetStats();
   const osQ = useOsDistribution();
-  const cpuQ = useCpuByAgent(8);
+  const agentsQ = useAgents();
 
-  const summary = summaryQ.data;
-  const agents = agentsQ.data ?? [];
-  const osDist = osQ.data ?? [];
-  const cpuByAgent = cpuQ.data ?? [];
-  const recentIncidents = agents
-    .filter((agent) => agent.status !== 'online')
-    .slice(0, 8);
+  const isLoading = stats.isLoading;
+  const showOverlay = useColdLoad(isLoading, stats.totalAgents > 0);
 
-  const isLoading = summaryQ.isLoading && agentsQ.isLoading;
-  const showOverlay = useColdLoad(isLoading, !!summary || agents.length > 0);
+  // Latest-incidents feed: every agent currently in a non-online state,
+  // sorted by most-recent status change. Bounded to 10 rows so the table
+  // stays scannable regardless of fleet size.
+  const incidents = (agentsQ.data ?? [])
+    .filter((a) => a.status !== 'online')
+    .slice()
+    .sort(
+      (a, b) =>
+        new Date(b.statusChangedAt).getTime() -
+        new Date(a.statusChangedAt).getTime(),
+    )
+    .slice(0, 10);
 
-  // CPU/memory/disk tones flip from green → yellow → red as the fleet
-  // average climbs. Keeps the dashboard's overall mood matching what's
-  // actually happening to the fleet.
-  const cpu = Number(summary?.avgCpu ?? 0);
-  const mem = Number(summary?.avgMemory ?? 0);
-  const disk = Number(summary?.avgDisk ?? 0);
-  const utilTone = (v: number): 'green' | 'yellow' | 'rose' =>
-    v >= 85 ? 'rose' : v >= 70 ? 'yellow' : 'green';
+  // Tone helpers: utilization tiles turn yellow > 70 and rose > 85 so
+  // the colour itself tells you whether the fleet is healthy.
+  const utilTone = (avg: number): KpiTone =>
+    avg >= 85 ? 'rose' : avg >= 70 ? 'yellow' : 'green';
+
+  // Issue tone — anything non-zero gets a rose tile so the eye lands on
+  // it first. Same trick for offline/unknown.
+  const issueTone = (n: number): KpiTone => (n > 0 ? 'rose' : 'green');
+  const unknownTone = (n: number): KpiTone => (n > 0 ? 'orange' : 'green');
 
   return (
     <div className="w-full space-y-6">
@@ -68,132 +87,154 @@ export function DashboardOverview() {
 
       <PageHeader
         title="Dashboard"
-        description="Overview of your ITOM environment"
+        description="Live operations view across your ITOM fleet"
       />
 
-      {/* Row 1 — KPI grid, 8 metrics in 4-col layout (per acai screenshot).
-          Sticking to gap-4 (16px) per Hear DS spec. */}
+      {/* Row 1 — Attention. Headline counts that should be zero. */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <KpiCard
           label="Total Agents"
-          value={summary?.totalAgents ?? 0}
-          icon={Server}
+          value={stats.totalAgents}
+          icon={Users}
           tone="purple"
-          descriptor={`${summary?.onlineAgents ?? 0} active`}
-          descriptorTone="success"
-        />
-        <KpiCard
-          label="Online Agents"
-          value={summary?.onlineAgents ?? 0}
-          icon={CheckCircle2}
-          tone="teal"
-          descriptor={`of ${summary?.totalAgents ?? 0} agents`}
+          descriptor={`${stats.online} online · ${stats.offline} offline`}
           descriptorTone="muted"
         />
         <KpiCard
           label="Offline Agents"
-          value={summary?.offlineAgents ?? 0}
+          value={stats.offline}
           icon={ServerOff}
-          tone="rose"
+          tone={issueTone(stats.offline)}
           descriptor={
-            summary?.offlineAgents
-              ? `${summary.offlineAgents} unreachable`
-              : 'all reachable'
+            stats.offline === 0
+              ? 'all reachable'
+              : `${pct(stats.offline, stats.totalAgents)} of fleet`
           }
-          descriptorTone={summary?.offlineAgents ? 'danger' : 'muted'}
+          descriptorTone={stats.offline > 0 ? 'danger' : 'success'}
+        />
+        <KpiCard
+          label="Unknown / Stale"
+          value={stats.unknown}
+          icon={HelpCircle}
+          tone={unknownTone(stats.unknown)}
+          descriptor={
+            stats.unknown === 0
+              ? 'no stale agents'
+              : `${pct(stats.unknown, stats.totalAgents)} of fleet`
+          }
+          descriptorTone={stats.unknown > 0 ? 'warning' : 'success'}
+        />
+        <KpiCard
+          label="Healthy Agents"
+          value={stats.healthy}
+          icon={HeartPulse}
+          tone="green"
+          descriptor={`${pct(stats.healthy, stats.totalAgents)} of fleet`}
+          descriptorTone="success"
+        />
+      </div>
+
+      {/* Row 2 — Fleet posture. Averages + p50/p95/max sub-line — no
+          hostname, because that doesn't scale to 1000 agents. */}
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <KpiCard
+          label="Total Issues"
+          value={stats.issues}
+          icon={AlertTriangle}
+          tone={issueTone(stats.issues)}
+          descriptor={
+            stats.issues === 0 ? 'all clear' : 'offline + unknown'
+          }
+          descriptorTone={stats.issues > 0 ? 'danger' : 'success'}
         />
         <KpiCard
           label="Avg CPU"
-          value={formatPercent(cpu)}
+          value={formatPercent(stats.cpu.avg)}
           icon={Cpu}
-          tone={utilTone(cpu)}
-          descriptor="fleet average"
+          tone={utilTone(stats.cpu.avg)}
+          descriptor={percentileSummary(stats.cpu)}
           descriptorTone="muted"
         />
-
         <KpiCard
           label="Avg Memory"
-          value={formatPercent(mem)}
+          value={formatPercent(stats.memory.avg)}
           icon={MemoryStick}
-          tone={utilTone(mem)}
-          descriptor="fleet average"
+          tone={utilTone(stats.memory.avg)}
+          descriptor={percentileSummary(stats.memory)}
           descriptorTone="muted"
         />
         <KpiCard
           label="Avg Disk"
-          value={formatPercent(disk)}
+          value={formatPercent(stats.disk.avg)}
           icon={HardDrive}
-          tone={utilTone(disk)}
-          descriptor="fleet average"
-          descriptorTone="muted"
-        />
-        <KpiCard
-          label="Unknown"
-          value={summary?.unknownAgents ?? 0}
-          icon={HelpCircle}
-          tone="orange"
-          descriptor="awaiting connection"
-          descriptorTone={summary?.unknownAgents ? 'warning' : 'muted'}
-        />
-        <KpiCard
-          label="Last Update"
-          value={summary ? formatRelativeTime(summary.lastUpdatedAt) : '—'}
-          icon={RefreshCw}
-          tone="green"
-          descriptor="auto-refresh 15s"
+          tone={utilTone(stats.disk.avg)}
+          descriptor={percentileSummary(stats.disk)}
           descriptorTone="muted"
         />
       </div>
 
-      {/* Row 2 — Recent incidents (wide) + agent status donut (narrow). */}
+
+
+      {/* Row 4 — Latest incidents (bounded list, scales fine) + OS donut. */}
       <div className="grid gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-4 w-4 text-rose-600" />
-              Recent Incidents (last 24h)
-            </CardTitle>
+          <CardHeader className="flex flex-row items-start justify-between gap-2 pb-2">
+            <div>
+              <CardTitle>Latest incidents</CardTitle>
+              <p className="text-xs text-muted-foreground">
+                Agents currently in a non-online state, most recent change first
+              </p>
+            </div>
+            {incidents.length > 0 ? (
+              <Link
+                href="/agents"
+                className="shrink-0 text-xs font-medium text-primary hover:underline"
+              >
+                View all →
+              </Link>
+            ) : null}
           </CardHeader>
           <CardContent className="pt-0">
-            {recentIncidents.length === 0 ? (
-              <div className="rounded-lg border border-dashed border-border bg-muted/30 px-6 py-10 text-center">
-                <p className="text-sm text-muted-foreground">
-                  No incidents in the last 24 hours.
-                </p>
+            {incidents.length === 0 ? (
+              <div className="flex h-[200px] items-center justify-center rounded-md border border-dashed border-border bg-muted/30 text-sm text-muted-foreground">
+                No active incidents — every agent is online.
               </div>
             ) : (
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Incident</TableHead>
-                    <TableHead>Affected Agent</TableHead>
-                    <TableHead>Affected Device</TableHead>
-                    <TableHead>Occurred At</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Agent</TableHead>
+                    <TableHead>OS / Arch</TableHead>
+                    <TableHead>Since</TableHead>
                     <TableHead className="text-right">Status</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {recentIncidents.map((agent) => (
-                    <TableRow key={`incident-${agent.agentId}`}>
-                      <TableCell>
-                        {agent.status === 'offline'
+                  {incidents.map((a) => (
+                    <TableRow key={`incident-${a.agentId}`}>
+                      <TableCell className="font-medium">
+                        {a.status === 'offline'
                           ? 'Connection lost'
                           : 'Awaiting connection'}
                       </TableCell>
-                      <TableCell
-                        className="font-medium"
-                        title={agent.hostname ?? ''}
-                      >
-                        {agentLabel(agent.os, agent.agentId)}
+                      <TableCell>
+                        <Link
+                          href={`/agents/${a.agentId}`}
+                          className="font-medium text-foreground hover:text-primary"
+                          title={a.hostname ?? ''}
+                        >
+                          {agentLabel(a.os, a.agentId)}
+                        </Link>
                       </TableCell>
                       <TableCell className="text-muted-foreground">
-                        {agent.os} · {agent.arch}
+                        {a.os} · {a.arch}
                       </TableCell>
                       <TableCell className="text-muted-foreground">
-                        {formatRelativeTime(agent.lastSeenAt)}
+                        {formatRelativeTime(a.statusChangedAt)}
                       </TableCell>
                       <TableCell className="text-right">
-                        <StatusBadge status={agent.status} />
+                        <StatusBadge status={a.status} />
                       </TableCell>
                     </TableRow>
                   ))}
@@ -202,44 +243,74 @@ export function DashboardOverview() {
             )}
           </CardContent>
         </Card>
-
         <Card>
-          <CardHeader className="pb-3">
-            <CardTitle>Agent Status</CardTitle>
+          <CardHeader className="pb-2">
+            <CardTitle>OS Distribution</CardTitle>
+            <p className="text-xs text-muted-foreground">
+              Breakdown of agents by operating system
+            </p>
           </CardHeader>
           <CardContent className="pt-0">
-            <StatusDonut
-              online={summary?.onlineAgents ?? 0}
-              offline={summary?.offlineAgents ?? 0}
-              unknown={summary?.unknownAgents ?? 0}
-            />
+            <OsDistributionChart data={osQ.data ?? []} />
           </CardContent>
         </Card>
       </div>
 
-      {/* Row 3 — CPU by Agent (wide) + OS Distribution (narrow). */}
-      <div className="grid gap-4 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
-          <CardHeader className="pb-3">
+            {/* Row 3 — Distribution histograms. The single most scalable way
+          to read fleet stress: 10 bars regardless of agent count. */}
+      <div className="grid gap-4 xl:grid-cols-3">
+        <Card>
+          <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2">
-              <Activity className="h-4 w-4 text-primary" />
-              CPU by Agent
+              <Cpu className="h-4 w-4 text-primary" />
+              CPU usage distribution
             </CardTitle>
+            <p className="text-xs text-muted-foreground">
+              Agents bucketed by their latest CPU% sample
+            </p>
           </CardHeader>
           <CardContent className="pt-0">
-            <CpuByAgentChart data={cpuByAgent} />
+            <DistributionHistogram buckets={stats.cpu.buckets} />
           </CardContent>
         </Card>
-
         <Card>
-          <CardHeader className="pb-3">
-            <CardTitle>OS Distribution</CardTitle>
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2">
+              <MemoryStick className="h-4 w-4 text-primary" />
+              Memory usage distribution
+            </CardTitle>
+            <p className="text-xs text-muted-foreground">
+              Agents bucketed by their latest memory% sample
+            </p>
           </CardHeader>
           <CardContent className="pt-0">
-            <OsDistributionChart data={osDist} />
+            <DistributionHistogram buckets={stats.memory.buckets} />
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2">
+              <HardDrive className="h-4 w-4 text-primary" />
+              Disk usage distribution
+            </CardTitle>
+            <p className="text-xs text-muted-foreground">
+              Agents bucketed by their highest mountpoint usage
+            </p>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <DistributionHistogram buckets={stats.disk.buckets} />
           </CardContent>
         </Card>
       </div>
     </div>
   );
+}
+
+function pct(part: number, total: number): string {
+  if (!total) return '0%';
+  return `${Math.round((part / total) * 100)}%`;
+}
+
+function percentileSummary(m: MetricStats): string {
+  return `p50 ${Math.round(m.p50)}% · p95 ${Math.round(m.p95)}% · max ${Math.round(m.max)}%`;
 }
