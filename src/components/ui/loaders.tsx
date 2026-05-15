@@ -132,16 +132,22 @@ export function LoadingMoreRow({
 
 export function KpiCardSkeleton() {
   return (
-    <div className="rounded-md border border-border/60 bg-background px-3 py-2">
-      <Skeleton className="mb-2 h-3 w-24" />
-      <Skeleton className="h-5 w-32" />
+    <div className="flex flex-col gap-4 rounded-lg border border-border bg-card p-6 shadow-soft">
+      <div className="flex items-start justify-between">
+        <Skeleton className="h-3.5 w-24" />
+        <Skeleton className="h-11 w-11 rounded-xl" />
+      </div>
+      <div className="flex flex-col gap-2">
+        <Skeleton className="h-9 w-20" />
+        <Skeleton className="h-4 w-32" />
+      </div>
     </div>
   );
 }
 
 export function KpiGridSkeleton({ count = 4 }: { count?: number }) {
   return (
-    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
       {Array.from({ length: count }).map((_, i) => (
         <KpiCardSkeleton key={i} />
       ))}
