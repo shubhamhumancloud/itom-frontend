@@ -81,37 +81,51 @@ export function AgentSoftwareTab({ agentId }: { agentId: string }) {
             </p>
           </div>
         ) : (
-          <>
-            <Table>
+          // Viewport-relative scrollable container — fills the page below
+          // the card header instead of capping at 480px. The sticky header
+          // on <Table> stays pinned while body rows scroll inside this
+          // bounded box. IntersectionObserver respects ancestor clipping,
+          // so the existing sentinel-based infinite scroll keeps working.
+          <div className="h-[calc(100vh-220px)] min-h-[500px] overflow-y-auto rounded-md border border-border/60">
+            <Table className="table-fixed">
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Version</TableHead>
-                  <TableHead>Publisher</TableHead>
-                  <TableHead>Installed</TableHead>
-                  <TableHead className="text-right">Size</TableHead>
-                  <TableHead className="text-right">Source</TableHead>
+                  <TableHead className="w-[28%]">Name</TableHead>
+                  <TableHead className="w-[12%]">Version</TableHead>
+                  <TableHead className="w-[24%]">Publisher</TableHead>
+                  <TableHead className="w-[14%]">Installed</TableHead>
+                  <TableHead className="w-[10%] text-right">Size</TableHead>
+                  <TableHead className="w-[12%] text-right">Source</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {items.map((s) => (
                   <TableRow key={`${s.name}::${s.version}`}>
-                    <TableCell className="font-medium">
-                      <div className="flex items-center gap-2">
+                    <TableCell className="font-medium" title={s.name}>
+                      <div className="flex min-w-0 items-center gap-2">
                         <SoftwareIcon name={s.name} />
-                        <span>{s.name}</span>
+                        <span className="truncate">{s.name}</span>
                       </div>
                     </TableCell>
-                    <TableCell className="text-muted-foreground tabular-nums">
+                    <TableCell
+                      className="truncate text-muted-foreground tabular-nums"
+                      title={s.version || undefined}
+                    >
                       {s.version || '—'}
                     </TableCell>
-                    <TableCell className="text-muted-foreground">
+                    <TableCell
+                      className="truncate text-muted-foreground"
+                      title={s.publisher ?? undefined}
+                    >
                       {s.publisher ?? '—'}
                     </TableCell>
-                    <TableCell className="text-muted-foreground">
+                    <TableCell
+                      className="truncate text-muted-foreground"
+                      title={s.installedAt ?? undefined}
+                    >
                       {s.installedAt ?? '—'}
                     </TableCell>
-                    <TableCell className="text-right tabular-nums text-muted-foreground">
+                    <TableCell className="truncate text-right tabular-nums text-muted-foreground">
                       {s.sizeBytes != null ? formatBytes(s.sizeBytes) : '—'}
                     </TableCell>
                     <TableCell className="text-right">
@@ -130,7 +144,7 @@ export function AgentSoftwareTab({ agentId }: { agentId: string }) {
                 Showing {totalLoaded.toLocaleString()} apps
               </p>
             )}
-          </>
+          </div>
         )}
       </CardContent>
     </Card>

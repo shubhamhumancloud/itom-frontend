@@ -375,12 +375,12 @@ export function NetworkOverviewPage({
                 >
                   <defs>
                     <linearGradient id="netInGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#22c55e" stopOpacity={0.45} />
-                      <stop offset="100%" stopColor="#22c55e" stopOpacity={0.05} />
+                      <stop offset="0%" stopColor="#D94871" stopOpacity={0.45} />
+                      <stop offset="100%" stopColor="#D94871" stopOpacity={0.05} />
                     </linearGradient>
                     <linearGradient id="netOutGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#f97316" stopOpacity={0.45} />
-                      <stop offset="100%" stopColor="#f97316" stopOpacity={0.05} />
+                      <stop offset="0%" stopColor="#1A237E" stopOpacity={0.45} />
+                      <stop offset="100%" stopColor="#1A237E" stopOpacity={0.05} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid
@@ -429,7 +429,7 @@ export function NetworkOverviewPage({
                     type="monotone"
                     dataKey="inBps"
                     name="Received"
-                    stroke="#22c55e"
+                    stroke="#D94871"
                     strokeWidth={2}
                     fill="url(#netInGradient)"
                     isAnimationActive={false}
@@ -439,7 +439,7 @@ export function NetworkOverviewPage({
                     type="monotone"
                     dataKey="outBps"
                     name="Sent"
-                    stroke="#f97316"
+                    stroke="#1A237E"
                     strokeWidth={2}
                     fill="url(#netOutGradient)"
                     isAnimationActive={false}
@@ -533,36 +533,58 @@ export function NetworkOverviewPage({
               <div
                 ref={networkTableContainerRef}
                 onScroll={handleNetworkTableScroll}
-                className="h-[480px] overflow-y-auto overflow-x-auto rounded-md border border-border/60"
+                className="h-[480px] overflow-y-auto rounded-md border border-border/60"
               >
                 <div className="border-b border-border/60 bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
                   Inbound = traffic received by this interface. Outbound =
                   traffic sent by this interface. Throughput columns are bytes
                   per second, packet columns are packets per second.
                 </div>
-                <Table>
+                <Table className="table-fixed">
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Interface</TableHead>
-                      <TableHead>Inbound Throughput</TableHead>
-                      <TableHead>Outbound Throughput</TableHead>
-                      <TableHead>Inbound Packet Rate</TableHead>
-                      <TableHead>Outbound Packet Rate</TableHead>
-                      <TableHead>Time</TableHead>
+                      <TableHead className="w-[12%]">Interface</TableHead>
+                      <TableHead className="w-[17%] !whitespace-normal leading-tight">
+                        Inbound Throughput
+                      </TableHead>
+                      <TableHead className="w-[17%] !whitespace-normal leading-tight">
+                        Outbound Throughput
+                      </TableHead>
+                      <TableHead className="w-[17%] !whitespace-normal leading-tight">
+                        Inbound Packet Rate
+                      </TableHead>
+                      <TableHead className="w-[17%] !whitespace-normal leading-tight">
+                        Outbound Packet Rate
+                      </TableHead>
+                      <TableHead className="w-[20%]">Time</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {visibleNetworkSnapshots.map((row) => (
                       <TableRow key={`nw-${row.id}`}>
-                        <TableCell className="font-medium">
+                        <TableCell
+                          className="truncate font-medium"
+                          title={row.interfaceName}
+                        >
                           {row.interfaceName}
                         </TableCell>
-                        <TableCell>{formatRate(row.inBps)}</TableCell>
-                        <TableCell>{formatRate(row.outBps)}</TableCell>
-                        <TableCell>{formatPacketRate(row.inPps)}</TableCell>
-                        <TableCell>{formatPacketRate(row.outPps)}</TableCell>
-                        <TableCell>
-                          <div>{formatLocalTimestamp(row.timestamp)}</div>
+                        <TableCell className="truncate tabular-nums">
+                          {formatRate(row.inBps)}
+                        </TableCell>
+                        <TableCell className="truncate tabular-nums">
+                          {formatRate(row.outBps)}
+                        </TableCell>
+                        <TableCell className="truncate tabular-nums">
+                          {formatPacketRate(row.inPps)}
+                        </TableCell>
+                        <TableCell className="truncate tabular-nums">
+                          {formatPacketRate(row.outPps)}
+                        </TableCell>
+                        <TableCell
+                          className="truncate"
+                          title={formatLocalTimestamp(row.timestamp)}
+                        >
+                          {formatLocalTimestamp(row.timestamp)}
                         </TableCell>
                       </TableRow>
                     ))}

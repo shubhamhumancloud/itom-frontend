@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { LoadingOverlay, TableSkeleton, useColdLoad } from '@/components/ui/loaders';
@@ -36,16 +36,25 @@ export function AgentsTable() {
         description="Every host reporting into your tenant"
       />
 
+      {/* "All agents" heading sits on the page background (not inside a
+          card), matching the Hear "All Cases" pattern. The total-count
+          subtitle echoes Hear's "N total cases" line. */}
+      <div className="flex flex-row items-center justify-between gap-4">
+        <div>
+          <h2 className="text-lg font-semibold tracking-tight">All agents</h2>
+          <p className="text-xs text-muted-foreground">
+            {data.length} total agent{data.length === 1 ? '' : 's'}
+          </p>
+        </div>
+        <Input
+          className="w-72"
+          placeholder="Search name, hostname, or ID"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
+
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between gap-4 pb-3">
-          <CardTitle className="text-base font-semibold">All agents</CardTitle>
-          <Input
-            className="w-72"
-            placeholder="Search name, hostname, or ID"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </CardHeader>
         <CardContent>
           {isLoading ? (
             <TableSkeleton rows={6} columns={6} />
@@ -63,69 +72,80 @@ export function AgentsTable() {
               </p>
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Agent</TableHead>
-                  <TableHead>Hostname</TableHead>
-                  <TableHead>OS / Arch</TableHead>
-                  <TableHead>Ethernet IP/Wifi IP</TableHead>
-                  <TableHead>Last seen</TableHead>
-                  <TableHead className="text-right">Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {rows.map((agent) => {
-                  const ips = [
-                    ...(agent.ethernetIPs ?? []),
-                    ...(agent.wifiIPs ?? []),
-                  ]
-                    .slice(0, 2)
-                    .join(', ');
-                  const label = agentLabel(agent.os, agent.agentId);
-                  const href = `/agents/${agent.agentId}`;
-                  return (
-                    <TableRow
-                      key={agent.agentId}
-                      role="link"
-                      tabIndex={0}
-                      onClick={() => router.push(href)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault();
-                          router.push(href);
-                        }
-                      }}
-                      className="cursor-pointer hover:bg-muted/50 focus:bg-muted/50 focus:outline-none"
-                    >
-                      <TableCell>
-                        <span className="font-medium text-foreground" title={agent.agentId}>
-                          {label}
-                        </span>
-                        <div className="font-mono text-[10px] text-muted-foreground">
-                          {truncateMiddle(agent.agentId)}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <span className="text-foreground">{agent.hostname}</span>
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {agent.os} · {agent.arch}
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {ips || '-'}
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {formatRelativeTime(agent.lastSeenAt)}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <StatusBadge status={agent.status} />
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+            // Viewport-relative scrollable container so the All agents
+            // table fills the page like the processes / software / status
+            // tables. Sticky header stays pinned while body scrolls inside.
+            <div className="h-[calc(100vh-260px)] min-h-[480px] overflow-y-auto rounded-md border border-border/60">
+              <Table className="table-fixed">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[22%]">Agent</TableHead>
+                    <TableHead className="w-[15%]">Hostname</TableHead>
+                    <TableHead className="w-[14%]">OS / Arch</TableHead>
+                    <TableHead className="w-[22%]">Ethernet IP / Wifi IP</TableHead>
+                    <TableHead className="w-[14%]">Last Seen</TableHead>
+                    <TableHead className="w-[13%] text-right">Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {rows.map((agent) => {
+                    const ips = [
+                      ...(agent.ethernetIPs ?? []),
+                      ...(agent.wifiIPs ?? []),
+                    ]
+                      .slice(0, 2)
+                      .join(', ');
+                    const label = agentLabel(agent.os, agent.agentId);
+                    const href = `/agents/${agent.agentId}`;
+                    return (
+                      <TableRow
+                        key={agent.agentId}
+                        role="link"
+                        tabIndex={0}
+                        onClick={() => router.push(href)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            router.push(href);
+                          }
+                        }}
+                        className="cursor-pointer hover:bg-muted/50 focus:bg-muted/50 focus:outline-none"
+                      >
+                        <TableCell className="truncate" title={agent.agentId}>
+                          <div className="truncate font-medium text-foreground">
+                            {label}
+                          </div>
+                          <div className="truncate font-mono text-[10px] text-muted-foreground">
+                            {truncateMiddle(agent.agentId)}
+                          </div>
+                        </TableCell>
+                        <TableCell
+                          className="truncate text-foreground"
+                          title={agent.hostname ?? undefined}
+                        >
+                          {agent.hostname}
+                        </TableCell>
+                        <TableCell className="truncate text-muted-foreground">
+                          {agent.os} · {agent.arch}
+                        </TableCell>
+                        <TableCell
+                          className="truncate text-muted-foreground tabular-nums"
+                          title={ips || undefined}
+                        >
+                          {ips || '-'}
+                        </TableCell>
+                        <TableCell className="truncate text-muted-foreground">
+                          {formatRelativeTime(agent.lastSeenAt)}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <StatusBadge status={agent.status} />
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </CardContent>
       </Card>
