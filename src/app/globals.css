@@ -7,7 +7,7 @@
 /* ================================================================
    ITOM design system — structurally cloned from acai Hear so the
    two products share the same spacing/rhythm/typography. Brand
-   colour stays peach (#d89477) per the design-system memory; only
+   colour stays peach ( #D89477) per the design-system memory; only
    the chrome (background, shadows, surface tokens) is borrowed.
    ================================================================ */
 
@@ -136,13 +136,13 @@ summary,
    LIGHT MODE — ITOM peach
    ================================================================ */
 :root {
-  /* Brand scale (peach #d89477 anchored) */
+  /* Brand scale (peach  #D89477 anchored) */
   --brand-50: #fdf6f2;
   --brand-100: #fae8de;
   --brand-200: #f5d0bc;
   --brand-300: #ecb091;
   --brand-400: #e1986e;
-  --brand-500: #d89477;
+  --brand-500:  #D89477;
   --brand-600: #c47559;
   --brand-700: #a35e44;
   --brand-800: #7e472f;
@@ -157,7 +157,7 @@ summary,
   --popover: #ffffff;
   --popover-foreground: #1b1730;
 
-  --primary: #d89477;
+  --primary:  #D89477;
   --primary-foreground: #ffffff;
 
   --secondary: #f4f1eb;
@@ -172,9 +172,9 @@ summary,
   --destructive: #dc2626;
   --border: #e6e2f3;
   --input: #e6e2f3;
-  --ring: #d89477;
+  --ring:  #D89477;
 
-  --chart-1: #d89477;
+  --chart-1:  #D89477;
   --chart-2: #e1986e;
   --chart-3: #f5d0bc;
   --chart-4: #059669;
@@ -193,12 +193,12 @@ summary,
   /* === Sidebar — white card with peach active state === */
   --sidebar: #ffffff;
   --sidebar-foreground: #1a1a1e;
-  --sidebar-primary: #d89477;
+  --sidebar-primary:  #D89477;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #fdf6f2;
   --sidebar-accent-foreground: #a35e44;
   --sidebar-border: #e6e8f0;
-  --sidebar-ring: #d89477;
+  --sidebar-ring:  #D89477;
 
   /* === Agent/fleet status tokens (ITOM-specific) === */
   --status-online: #059669;
@@ -258,7 +258,7 @@ summary,
   --card-foreground: #f3f1ff;
   --popover: #1a1630;
   --popover-foreground: #f3f1ff;
-  --primary: #d89477;
+  --primary:  #D89477;
   --primary-foreground: #1a1630;
   --secondary: #231f3b;
   --secondary-foreground: #e4dcff;
@@ -268,19 +268,19 @@ summary,
   --accent-foreground: #e4dcff;
   --border: #2d2750;
   --input: #2d2750;
-  --ring: #d89477;
+  --ring:  #D89477;
 
   --sand: #231f3b;
   --sand-foreground: #ecb091;
 
   --sidebar: #16132a;
   --sidebar-foreground: #ddd4ff;
-  --sidebar-primary: #d89477;
+  --sidebar-primary:  #D89477;
   --sidebar-primary-foreground: #1a1630;
   --sidebar-accent: #231f3b;
   --sidebar-accent-foreground: #ecb091;
   --sidebar-border: #2d2750;
-  --sidebar-ring: #d89477;
+  --sidebar-ring:  #D89477;
 
   /* KPI tints — saturated in dark mode so they pop on the deep canvas */
   --kpi-purple-bg: rgb(53 38 139 / 0.25);
