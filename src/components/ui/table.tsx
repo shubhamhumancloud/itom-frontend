@@ -62,7 +62,7 @@ function Table({ className, ...props }: React.ComponentProps<"table">) {
           // !important.
           "w-full caption-bottom text-sm",
           "[&_tr]:border-0 [&_td]:border-0 [&_th]:border-0",
-          "[&_td]:h-[48px] [&_th]:h-[48px]",
+          "[&_td]:h-[48px] [&_th]:h-[54px]",
           className
         )}
         {...props}
@@ -137,8 +137,8 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
         // rule). !border-b-2 / !border-border use !important to win over
         // the table-level `[&_th]:border-0` reset — same trick the
         // tenant users-page table uses.
-        "px-4 text-left align-middle whitespace-nowrap",
-        "text-[12px] font-bold uppercase tracking-wider text-foreground/70",
+        "px-[20px] py-[12px] text-left align-middle whitespace-nowrap",
+        "text-[13px] font-bold leading-[24px] text-[#474747]",
         "!border-b-2 !border-border",
         "[&:has([role=checkbox])]:pr-0",
         className

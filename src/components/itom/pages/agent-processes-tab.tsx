@@ -228,9 +228,7 @@ function SortHead({
     <TableHead className={className}>
       <button
         onClick={onClick}
-        className={`hover:text-foreground ${
-          active ? 'font-semibold text-foreground' : 'text-muted-foreground'
-        }`}
+        className="hover:text-foreground"
       >
         {label} {active ? '↓' : ''}
       </button>

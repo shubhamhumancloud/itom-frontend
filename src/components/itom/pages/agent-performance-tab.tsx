@@ -73,7 +73,7 @@ export function AgentPerformanceTab({ agentId }: { agentId: string }) {
       sublabel: agent?.cpuModel ?? undefined,
       currentDisplay: pctOrDash(metrics[0]?.cpuPercent),
       points: framedPercentSeries(metrics, 'cpuPercent', range),
-      colour: '#AFA9EC',
+      colour: '#978FED',
     });
 
     out.push({
@@ -84,7 +84,7 @@ export function AgentPerformanceTab({ agentId }: { agentId: string }) {
         : undefined,
       currentDisplay: pctOrDash(metrics[0]?.memoryPercent),
       points: framedPercentSeries(metrics, 'memoryPercent', range),
-      colour: '#1D9E75',
+      colour: '#EE89DF',
     });
 
     // Per-disk-mount entries from the disk samples stream.
@@ -107,13 +107,18 @@ export function AgentPerformanceTab({ agentId }: { agentId: string }) {
       );
       out.push({
         key: `disk:${mount}`,
-        label: `Disk (${mount})`,
+        // Keep "Disk" as the leading word (resource type stays obvious at
+        // a glance) but follow it with the LAST path segment so multiple
+        // disk tiles are visually distinct — `Disk · Update` /
+        // `Disk · Data` instead of the truncated `Disk (/System/Vol…` /
+        // `Disk (/System/Vol…` we used to render.
+        label: `Disk · ${shortenMount(mount)}`,
         sublabel: latest
-          ? `${formatBytes(latest.usedBytes)} / ${formatBytes(latest.totalBytes)}`
-          : undefined,
+          ? `${mount} · ${formatBytes(latest.usedBytes)} / ${formatBytes(latest.totalBytes)}`
+          : mount,
         currentDisplay: pctOrDash(latest?.usedPercent),
         points: series,
-        colour: '#85B7EB',
+        colour: '#FBDE9D',
       });
     }
 
@@ -134,7 +139,7 @@ export function AgentPerformanceTab({ agentId }: { agentId: string }) {
         sublabel: 'Network interface',
         currentDisplay: latestBps > 0 ? formatBitrate(latestBps) : '—',
         points,
-        colour: '#ED93B1',
+        colour: '#D94871',
         unit: 'bps',
       });
     }
@@ -162,7 +167,7 @@ export function AgentPerformanceTab({ agentId }: { agentId: string }) {
           (r) => r.timestamp,
           range,
         ),
-        colour: idx === 0 ? '#ED93B1' : '#BA7517',
+        colour: '#6BD9CC',
       });
     }
 
@@ -187,33 +192,37 @@ export function AgentPerformanceTab({ agentId }: { agentId: string }) {
     // the right-pane chart claim space without bloating the page.
     <Card className="flex h-full min-h-0 flex-1 flex-col border-border/90 shadow-(--shadow-soft)">
       <CardContent className="flex min-h-0 flex-1 flex-col p-0">
-        <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
-          {/* Left rail */}
-          <div className="flex w-full min-h-0 shrink-0 flex-col border-b lg:w-72 lg:border-b-0 lg:border-r">
+        <div className="flex min-h-0 flex-1 flex-col">
+          {/* Top rail — resources laid out as a horizontal strip above the
+              detail pane so the chart claims the full card width below. */}
+          <div className="flex w-full shrink-0 flex-col border-b">
             <div className="border-b px-4 py-3">
               <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 Resources
               </p>
             </div>
-            <div className="min-h-0 flex-1 overflow-y-auto p-2">
+            <div className="overflow-x-auto p-2">
               {resources.length === 0 ? (
-                <p className="px-2 py-6 text-center text-sm text-muted-foreground">
+                <p className="px-2 py-4 text-center text-sm text-muted-foreground">
                   No telemetry yet
                 </p>
               ) : (
-                resources.map((r) => (
-                  <RailRow
-                    key={r.key}
-                    res={r}
-                    active={r.key === activeRes?.key}
-                    onClick={() => setSelected(r.key)}
-                  />
-                ))
+                <div className="flex gap-2">
+                  {resources.map((r) => (
+                    <div key={r.key} className="w-28 shrink-0">
+                      <RailRow
+                        res={r}
+                        active={r.key === activeRes?.key}
+                        onClick={() => setSelected(r.key)}
+                      />
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
           </div>
 
-          {/* Right pane */}
+          {/* Bottom pane — chart + stats. */}
           <div className="flex min-w-0 min-h-0 flex-1 flex-col overflow-y-auto p-5">
             {activeRes ? (
               <DetailPane
@@ -255,19 +264,21 @@ function RailRow({
       type="button"
       onClick={onClick}
       className={cn(
-        'mb-1 flex w-full items-center gap-3 rounded-md border px-3 py-2 text-left transition',
+        'flex w-full flex-col gap-1 rounded-md border px-3 py-2 text-left transition',
         active
           ? 'border-primary/60 bg-primary/5'
           : 'border-transparent hover:border-border hover:bg-accent/40',
       )}
     >
-      <div className="h-10 w-24 shrink-0">
+      <div className="h-8 w-full">
         <Sparkline points={res.points} colour={res.colour} />
       </div>
-      <div className="min-w-0 flex-1">
-        <div className="truncate text-sm font-semibold">{res.label}</div>
+      <div className="min-w-0">
+        <div className="truncate text-sm font-semibold" title={res.label}>
+          {res.label}
+        </div>
         {res.sublabel && (
-          <div className="truncate text-[11px] text-muted-foreground">
+          <div className="truncate text-[11px] text-muted-foreground" title={res.sublabel}>
             {res.sublabel}
           </div>
         )}
@@ -796,6 +807,16 @@ function shortTimeLabel(ts: number, range: { fromMs: number; toMs: number }): st
     hour: '2-digit',
     minute: '2-digit',
   });
+}
+
+// Pull the last path segment from a mountpoint so tiles render the
+// differentiating tail ("Update", "Data") instead of "/System/Vol…" for
+// every disk. Windows roots like "C:" / "D:\" pass through unchanged.
+function shortenMount(mount: string): string {
+  if (!mount) return '/';
+  if (mount === '/' || /^[A-Za-z]:\\?$/.test(mount)) return mount;
+  const parts = mount.split(/[\\/]/).filter(Boolean);
+  return parts.length ? parts[parts.length - 1] : mount;
 }
 
 function formatBitrate(bps: number): string {

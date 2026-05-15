@@ -294,16 +294,16 @@ export function DiskOverviewPage({
 
               {diskViewMode === 'latest' ? (
                 <div className="grid gap-3 lg:grid-cols-3">
-                  <div className="rounded-md border border-border/60 lg:col-span-2">
-                    <Table>
+                  <div className="min-w-0 overflow-hidden rounded-md border border-border/60 lg:col-span-2">
+                    <Table className="table-fixed">
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Mountpoint</TableHead>
-                          <TableHead>Used</TableHead>
-                          <TableHead>Capacity</TableHead>
-                          <TableHead>Free</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead>Last Sample</TableHead>
+                          <TableHead className="w-[28%]">Mountpoint</TableHead>
+                          <TableHead className="w-[10%]">Used</TableHead>
+                          <TableHead className="w-[14%]">Capacity</TableHead>
+                          <TableHead className="w-[12%]">Free</TableHead>
+                          <TableHead className="w-[12%]">Status</TableHead>
+                          <TableHead className="w-[24%]">Last Sample</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -327,14 +327,28 @@ export function DiskOverviewPage({
                                 setSelectedDiskMount(row.mountpoint)
                               }
                             >
-                              <TableCell className="font-medium">
+                              <TableCell
+                                className="truncate font-medium"
+                                title={row.mountpoint}
+                              >
                                 {row.mountpoint}
                               </TableCell>
-                              <TableCell>{formatPercent(used)}</TableCell>
-                              <TableCell>{formatBytes(totalBytes)}</TableCell>
-                              <TableCell>{formatBytes(freeBytes)}</TableCell>
-                              <TableCell>{diskHealthLabel(used)}</TableCell>
-                              <TableCell>
+                              <TableCell className="truncate tabular-nums">
+                                {formatPercent(used)}
+                              </TableCell>
+                              <TableCell className="truncate tabular-nums">
+                                {formatBytes(totalBytes)}
+                              </TableCell>
+                              <TableCell className="truncate tabular-nums">
+                                {formatBytes(freeBytes)}
+                              </TableCell>
+                              <TableCell className="truncate">
+                                {diskHealthLabel(used)}
+                              </TableCell>
+                              <TableCell
+                                className="truncate"
+                                title={formatLocalTimestamp(row.latest.timestamp)}
+                              >
                                 {formatLocalTimestamp(row.latest.timestamp)}
                               </TableCell>
                             </TableRow>
