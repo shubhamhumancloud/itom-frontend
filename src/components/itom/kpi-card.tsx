@@ -4,27 +4,26 @@ import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 /**
- * Hear DS-style metric card.
+ * Hear-style KPI metric card.
  *
  *   ┌────────────────────────────────────┐
- *   │ Label                       [icon] │   <- tinted icon tile, 44×44
+ *   │ LABEL                       [icon] │  <- uppercase 13px, tinted 44×44 tile
  *   │                                    │
- *   │ 42                                 │   <- 36–40px SemiBold metric
- *   │ +6 from last week                  │   <- 14px Medium, green/red
+ *   │ 42                                 │  <- 36px Bold display, tabular nums
+ *   │ +6 from last week                  │  <- 14px Medium, green / red / muted
  *   └────────────────────────────────────┘
  *
- * Spec (from DESIGN_SYSTEM 3.md §5, §12):
- *   - p-5/p-6, rounded-2xl, white card, drop-shadow-metric-card
- *   - Icon box: 44×44, rounded-lg (8px), pastel tint background,
- *     saturated foreground for the icon stroke/fill
- *   - Number: ~36–42px / SemiBold / leading-none / text-foreground
- *   - Label: 14 / Regular / muted-foreground
- *   - Change: 14 / Medium / emerald-600 (positive) or rose-600 (negative)
- *
- * Color tones map to Hear's metric tints — purple/teal/green/yellow are
- * borrowed verbatim; rose and orange added for offline/warn KPIs.
+ * Spec (mirrors acai Hear admin dashboard):
+ *   - p-6, rounded-lg, white card, shadow-soft → shadow-elevated on hover
+ *   - Hover lifts 1px so the row reads as interactive without being noisy
+ *   - Icon tile: 44×44, rounded-xl, pastel KPI-tint background driven by
+ *     CSS vars in globals.css (--kpi-*-bg / --kpi-*-fg)
+ *   - Number: 36px / font-display / Bold / tabular-nums / tight tracking
+ *   - Label: 13px / SemiBold / UPPERCASE / wider letter-spacing
+ *   - Descriptor: 14px / Medium / token-driven colour
  */
 export type KpiTone =
+  | 'peach'
   | 'purple'
   | 'teal'
   | 'green'
@@ -34,22 +33,21 @@ export type KpiTone =
   | 'indigo';
 
 const tones: Record<KpiTone, { bg: string; fg: string }> = {
-  // Hear DS metric-tint defaults
-  purple: { bg: 'bg-[#f1eeff] dark:bg-[#35268b]/25', fg: 'text-[#35268b] dark:text-[#c8c4f1]' },
-  teal: { bg: 'bg-[#e4fcf9] dark:bg-[#14b8a6]/25', fg: 'text-[#14b8a6] dark:text-[#5eead4]' },
-  green: { bg: 'bg-[#d1fae5] dark:bg-[#22c55e]/25', fg: 'text-[#22c55e] dark:text-[#86efac]' },
-  yellow: { bg: 'bg-[#fef3c7] dark:bg-[#f59e0b]/25', fg: 'text-[#f59e0b] dark:text-[#fcd34d]' },
-  // Extensions for ITOM (offline / warn / queued)
-  orange: { bg: 'bg-[#ffedd5] dark:bg-[#f97316]/25', fg: 'text-[#ea580c] dark:text-[#fdba74]' },
-  rose: { bg: 'bg-[#fee2e2] dark:bg-[#ef4444]/25', fg: 'text-[#dc2626] dark:text-[#fca5a5]' },
-  indigo: { bg: 'bg-[#e0e7ff] dark:bg-[#6366f1]/25', fg: 'text-[#4338ca] dark:text-[#a5b4fc]' },
+  peach: { bg: 'bg-[var(--kpi-peach-bg)]', fg: 'text-[var(--kpi-peach-fg)]' },
+  purple: { bg: 'bg-[var(--kpi-purple-bg)]', fg: 'text-[var(--kpi-purple-fg)]' },
+  teal: { bg: 'bg-[var(--kpi-teal-bg)]', fg: 'text-[var(--kpi-teal-fg)]' },
+  green: { bg: 'bg-[var(--kpi-green-bg)]', fg: 'text-[var(--kpi-green-fg)]' },
+  yellow: { bg: 'bg-[var(--kpi-yellow-bg)]', fg: 'text-[var(--kpi-yellow-fg)]' },
+  orange: { bg: 'bg-[var(--kpi-orange-bg)]', fg: 'text-[var(--kpi-orange-fg)]' },
+  rose: { bg: 'bg-[var(--kpi-rose-bg)]', fg: 'text-[var(--kpi-rose-fg)]' },
+  indigo: { bg: 'bg-[var(--kpi-indigo-bg)]', fg: 'text-[var(--kpi-indigo-fg)]' },
 };
 
 export type KpiDescriptorTone = 'muted' | 'success' | 'warning' | 'danger';
 const descriptorTones: Record<KpiDescriptorTone, string> = {
   muted: 'text-muted-foreground',
-  success: 'text-[#22c55e]',
-  warning: 'text-[#f59e0b]',
+  success: 'text-[#059669]',
+  warning: 'text-[#d97706]',
   danger: 'text-[#dc2626]',
 };
 
@@ -70,24 +68,28 @@ export function KpiCard({
 }) {
   const t = tones[tone];
   return (
-    <div className="flex flex-col justify-between gap-3 rounded-sm border border-border bg-card p-6 shadow-(--shadow-metric-card) transition-shadow hover:shadow-(--shadow-content-card)">
+    <div className="group relative flex flex-col gap-4 rounded-lg border border-border bg-card p-6 shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:shadow-elevated">
       <div className="flex items-start justify-between gap-3">
-        <span className="text-[15px] leading-5 text-muted-foreground">{label}</span>
+        <span className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground">
+          {label}
+        </span>
         <span
           className={cn(
-            'flex h-9 w-9 shrink-0 items-center justify-center rounded-md',
+            'flex h-11 w-11 shrink-0 items-center justify-center rounded-xl',
             t.bg,
           )}
         >
-          <Icon className={cn('h-[18px] w-[18px]', t.fg)} strokeWidth={2.25} />
+          <Icon className={cn('h-[22px] w-[22px]', t.fg)} strokeWidth={2} />
         </span>
       </div>
-      <div className="space-y-0.5">
-        <div className="text-3xl font-semibold leading-none tracking-tight text-foreground">
+      <div className="flex flex-col gap-1.5">
+        <div className="font-display text-[36px] font-bold leading-none tracking-tight tabular-nums text-foreground">
           {value}
         </div>
         {descriptor ? (
-          <div className={cn('text-sm mt-2 font-medium', descriptorTones[descriptorTone])}>
+          <div
+            className={cn('text-sm font-medium', descriptorTones[descriptorTone])}
+          >
             {descriptor}
           </div>
         ) : null}

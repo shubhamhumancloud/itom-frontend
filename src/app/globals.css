@@ -4,7 +4,35 @@
 @plugin "@tailwindcss/typography";
 @source "../../node_modules/@swar-da/humancloud-ui/dist";
 
+/* ================================================================
+   ITOM design system — structurally cloned from acai Hear so the
+   two products share the same spacing/rhythm/typography. Brand
+   colour stays peach (#d89477) per the design-system memory; only
+   the chrome (background, shadows, surface tokens) is borrowed.
+   ================================================================ */
+
 @custom-variant dark (&:is(.dark *));
+
+/* Hide scrollbars globally (matches Hear) */
+*::-webkit-scrollbar { display: none; }
+* {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Pointer cursor on interactive elements (matches Hear) */
+button,
+[role="button"],
+[role="option"],
+[role="menuitem"],
+a,
+summary,
+[onclick],
+[tabindex]:not([tabindex="-1"]),
+[data-slot="select-item"],
+[data-slot="dropdown-menu-item"] {
+  cursor: pointer;
+}
 
 @theme inline {
   --color-background: var(--background);
@@ -12,6 +40,7 @@
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
   --font-display: var(--font-display);
+
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
@@ -28,11 +57,13 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -41,12 +72,8 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  --radius-lg: var(--radius);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --shadow-soft: 0 2px 12px -4px rgb(216 148 119 / 0.18);
-  --shadow-elevated: 0 12px 26px -12px rgb(216 148 119 / 0.28);
-  --shadow-glow-brand: 0 0 40px -10px rgb(216 148 119 / 0.38);
+
+  /* Brand scale — peach */
   --color-brand-50: var(--brand-50);
   --color-brand-100: var(--brand-100);
   --color-brand-200: var(--brand-200);
@@ -59,27 +86,57 @@
   --color-brand-900: var(--brand-900);
   --color-brand-950: var(--brand-950);
 
-  /* Hear DS — severity badge colors (solid fills, white text) */
+  /* Radius — Hear's 7-step ramp anchored on --radius */
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+
+  /* Spacing scale (Hear DS) */
+  --spacing-section-sm: 4rem;
+  --spacing-section-md: 6rem;
+  --spacing-section-lg: 8rem;
+
+  /* Shadows — peach-tinted to match brand (rgb 216 148 119) */
+  --shadow-soft: 0 2px 8px -2px rgb(216 148 119 / 0.08);
+  --shadow-elevated: 0 8px 24px -8px rgb(216 148 119 / 0.18);
+  --shadow-glow-brand: 0 0 40px -10px rgb(216 148 119 / 0.35);
+
+  /* Hear DS card elevations — alias as Tailwind shadow utilities */
+  --shadow-metric-card: var(--shadow-metric-card);
+  --shadow-content-card: var(--shadow-content-card);
+
+  /* Transitions */
+  --duration-fast: 150ms;
+  --duration-medium: 250ms;
+  --easing-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Sand (warm neutral) */
+  --color-sand: var(--sand);
+  --color-sand-foreground: var(--sand-foreground);
+
+  /* Severity badge colors (solid fills, white text) */
   --color-severity-critical: var(--severity-critical);
   --color-severity-high: var(--severity-high);
   --color-severity-medium: var(--severity-medium);
   --color-severity-low: var(--severity-low);
 
-  /* Hear DS — status badge bg/fg pairs (light bg, colored text) */
+  /* Status badge bg/fg pairs (light bg, colored text) */
   --color-status-investigation: var(--status-investigation-bg);
   --color-status-investigation-foreground: var(--status-investigation-fg);
   --color-status-pending: var(--status-pending-bg);
   --color-status-pending-foreground: var(--status-pending-fg);
   --color-status-review: var(--status-review-bg);
   --color-status-review-foreground: var(--status-review-fg);
-
-  /* Hear DS — only two elevations are used; alias them as Tailwind
-     shadow utilities (`shadow-metric-card`, `shadow-content-card`). */
-  --shadow-metric-card: var(--shadow-metric-card);
-  --shadow-content-card: var(--shadow-content-card);
 }
 
+/* ================================================================
+   LIGHT MODE — ITOM peach
+   ================================================================ */
 :root {
+  /* Brand scale (peach #d89477 anchored) */
   --brand-50: #fdf6f2;
   --brand-100: #fae8de;
   --brand-200: #f5d0bc;
@@ -92,35 +149,48 @@
   --brand-900: #56301f;
   --brand-950: #2e1810;
 
-  --background: #ffffff;
+  /* === Core surfaces — Hear-style warm off-white background === */
+  --background: #fafaf7;
   --foreground: #1b1730;
   --card: #ffffff;
   --card-foreground: #1b1730;
   --popover: #ffffff;
   --popover-foreground: #1b1730;
+
   --primary: #d89477;
   --primary-foreground: #ffffff;
-  --secondary: #f1effc;
+
+  --secondary: #f4f1eb;
   --secondary-foreground: #4b359d;
+
   --muted: #f2f0fa;
   --muted-foreground: #7c7c83;
-  --accent: #ece8ff;
-  --accent-foreground: #4b359d;
+
+  --accent: #fdf6f2;
+  --accent-foreground: #a35e44;
+
   --destructive: #dc2626;
   --border: #e6e2f3;
   --input: #e6e2f3;
   --ring: #d89477;
+
   --chart-1: #d89477;
   --chart-2: #e1986e;
   --chart-3: #f5d0bc;
   --chart-4: #059669;
   --chart-5: #d97706;
+
   --radius: 0.75rem;
+
   --font-display: "Poppins", "Inter", system-ui, sans-serif;
   --font-sans: "Poppins", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", monospace;
-  --sand: #f4f2fb;
-  --sand-foreground: #4e4770;
+
+  /* Sand (warm neutral, mirrors Hear's --sand token) */
+  --sand: #f4f1eb;
+  --sand-foreground: #4a3f35;
+
+  /* === Sidebar — white card with peach active state === */
   --sidebar: #ffffff;
   --sidebar-foreground: #1a1a1e;
   --sidebar-primary: #d89477;
@@ -129,6 +199,8 @@
   --sidebar-accent-foreground: #a35e44;
   --sidebar-border: #e6e8f0;
   --sidebar-ring: #d89477;
+
+  /* === Agent/fleet status tokens (ITOM-specific) === */
   --status-online: #059669;
   --status-offline: #dc2626;
   --status-unknown: #6b7280;
@@ -136,13 +208,34 @@
   --kpi-warn: #d97706;
   --kpi-bad: #dc2626;
 
-  /* Severity badges — solid bg + white text (per Hear DS) */
+  /* === KPI tile tints — pastel bg + saturated icon (Hear pattern) ===
+   * Each pair is consumed by KpiCard so future cards stay consistent
+   * by referencing tokens rather than ad-hoc hex.
+   */
+  --kpi-purple-bg: #f1eeff;
+  --kpi-purple-fg: #35268b;
+  --kpi-teal-bg: #e4fcf9;
+  --kpi-teal-fg: #14b8a6;
+  --kpi-green-bg: #d1fae5;
+  --kpi-green-fg: #059669;
+  --kpi-yellow-bg: #fef3c7;
+  --kpi-yellow-fg: #d97706;
+  --kpi-orange-bg: #ffedd5;
+  --kpi-orange-fg: #ea580c;
+  --kpi-rose-bg: #fee2e2;
+  --kpi-rose-fg: #dc2626;
+  --kpi-indigo-bg: #e0e7ff;
+  --kpi-indigo-fg: #4338ca;
+  --kpi-peach-bg: #fdf6f2;
+  --kpi-peach-fg: #a35e44;
+
+  /* Severity badges (solid bg + white text) */
   --severity-critical: #dc2626;
   --severity-high: #f59e0b;
   --severity-medium: #14b8a6;
   --severity-low: #6b7280;
 
-  /* Status badges — light bg + colored text (per Hear DS) */
+  /* Status badges (light bg + colored text) */
   --status-investigation-bg: #dbeafe;
   --status-investigation-fg: #1e40af;
   --status-pending-bg: #fef3c7;
@@ -155,6 +248,9 @@
   --shadow-content-card: 1px 1px 7.25px rgb(222 222 222 / 0.25);
 }
 
+/* ================================================================
+   DARK MODE — ITOM peach
+   ================================================================ */
 .dark {
   --background: #110f1d;
   --foreground: #f3f1ff;
@@ -173,6 +269,10 @@
   --border: #2d2750;
   --input: #2d2750;
   --ring: #d89477;
+
+  --sand: #231f3b;
+  --sand-foreground: #ecb091;
+
   --sidebar: #16132a;
   --sidebar-foreground: #ddd4ff;
   --sidebar-primary: #d89477;
@@ -182,8 +282,24 @@
   --sidebar-border: #2d2750;
   --sidebar-ring: #d89477;
 
-  /* Severity / status badges keep their saturated colors in dark mode
-     (the surrounding card is dark, light tints would wash out) */
+  /* KPI tints — saturated in dark mode so they pop on the deep canvas */
+  --kpi-purple-bg: rgb(53 38 139 / 0.25);
+  --kpi-purple-fg: #c8c4f1;
+  --kpi-teal-bg: rgb(20 184 166 / 0.25);
+  --kpi-teal-fg: #5eead4;
+  --kpi-green-bg: rgb(34 197 94 / 0.25);
+  --kpi-green-fg: #86efac;
+  --kpi-yellow-bg: rgb(245 158 11 / 0.25);
+  --kpi-yellow-fg: #fcd34d;
+  --kpi-orange-bg: rgb(249 115 22 / 0.25);
+  --kpi-orange-fg: #fdba74;
+  --kpi-rose-bg: rgb(239 68 68 / 0.25);
+  --kpi-rose-fg: #fca5a5;
+  --kpi-indigo-bg: rgb(99 102 241 / 0.25);
+  --kpi-indigo-fg: #a5b4fc;
+  --kpi-peach-bg: rgb(216 148 119 / 0.18);
+  --kpi-peach-fg: #ecb091;
+
   --severity-critical: #ef4444;
   --severity-high: #f59e0b;
   --severity-medium: #14b8a6;
@@ -200,21 +316,103 @@
   --shadow-content-card: 1px 1px 7.25px rgb(0 0 0 / 0.5);
 }
 
+/* ================================================================
+   Base Layer (mirrors Hear)
+   ================================================================ */
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
-
   html,
   body {
     width: 100%;
     margin: 0;
     padding: 0;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
   }
-
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar {
+    display: none;
+  }
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "cv11", "ss01", "ss03";
   }
+  html {
+    @apply font-sans;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Focus ring globally */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-primary;
+  }
+
+  /* Selection color */
+  ::selection {
+    background-color: var(--brand-200);
+    color: var(--brand-900);
+  }
+  .dark ::selection {
+    background-color: var(--brand-600);
+    color: var(--brand-50);
+  }
+
+  /* Tabular numbers on data */
+  .tabular-nums,
+  table td[data-numeric="true"],
+  table th[data-numeric="true"] {
+    font-variant-numeric: tabular-nums;
+  }
 }
 
+/* ================================================================
+   Utilities (mirrors Hear's typography + animation helpers)
+   ================================================================ */
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.025em;
+  }
+
+  .shadow-soft { box-shadow: var(--shadow-soft); }
+  .shadow-elevated { box-shadow: var(--shadow-elevated); }
+  .shadow-glow-brand { box-shadow: var(--shadow-glow-brand); }
+
+  .fade-up {
+    animation: fadeUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .fade-up-delay-1 { animation: fadeUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both; }
+  .fade-up-delay-2 { animation: fadeUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both; }
+  .fade-up-delay-3 { animation: fadeUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both; }
+  .fade-up-delay-4 { animation: fadeUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.4s both; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* ================================================================
+   Keyframes
+   ================================================================ */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
