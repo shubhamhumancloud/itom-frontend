@@ -73,7 +73,7 @@ export function AgentPerformanceTab({ agentId }: { agentId: string }) {
       sublabel: agent?.cpuModel ?? undefined,
       currentDisplay: pctOrDash(metrics[0]?.cpuPercent),
       points: framedPercentSeries(metrics, 'cpuPercent', range),
-      colour: '#7F77DD',
+      colour: '#AFA9EC',
     });
 
     out.push({
@@ -113,7 +113,7 @@ export function AgentPerformanceTab({ agentId }: { agentId: string }) {
           : undefined,
         currentDisplay: pctOrDash(latest?.usedPercent),
         points: series,
-        colour: '#378ADD',
+        colour: '#85B7EB',
       });
     }
 
@@ -134,7 +134,7 @@ export function AgentPerformanceTab({ agentId }: { agentId: string }) {
         sublabel: 'Network interface',
         currentDisplay: latestBps > 0 ? formatBitrate(latestBps) : '—',
         points,
-        colour: '#D4537E',
+        colour: '#ED93B1',
         unit: 'bps',
       });
     }
@@ -162,7 +162,7 @@ export function AgentPerformanceTab({ agentId }: { agentId: string }) {
           (r) => r.timestamp,
           range,
         ),
-        colour: '#BA7517',
+        colour: idx === 0 ? '#ED93B1' : '#BA7517',
       });
     }
 
@@ -781,6 +781,15 @@ function shortTimeLabel(ts: number, range: { fromMs: number; toMs: number }): st
       day: '2-digit',
       hour: '2-digit',
       minute: '2-digit',
+    });
+  }
+  // Short windows (≤ 1h): include seconds so 10s samples are individually
+  // addressable in the tooltip.
+  if (widthMs <= 60 * 60 * 1000) {
+    return d.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
     });
   }
   return d.toLocaleTimeString('en-US', {
