@@ -51,7 +51,7 @@ export function IncidentsCard({
     <Card>
       <CardHeader className="flex flex-row items-start justify-between gap-2 pb-2">
         <div>
-          <CardTitle>Latest incidents</CardTitle>
+          <CardTitle>Latest Incidents</CardTitle>
           <p className="text-xs text-muted-foreground">
             Agents currently in a non-online state, most recent change first
           </p>
@@ -59,7 +59,7 @@ export function IncidentsCard({
         {incidents.length > 0 ? (
           <Link
             href="/agents"
-            className="shrink-0 text-xs font-medium text-primary hover:underline"
+            className="shrink-0 text-sm font-semibold text-primary hover:underline"
           >
             View all →
           </Link>
@@ -75,7 +75,7 @@ export function IncidentsCard({
         ) : (
           <div className={`${BODY_HEIGHT} overflow-y-auto`}>
             <Table>
-              <TableHeader>
+              <TableHeader className="!bg-card [&_th]:!border-b-0">
                 <TableRow>
                   <TableHead>Type</TableHead>
                   <TableHead>Agent</TableHead>

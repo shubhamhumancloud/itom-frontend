@@ -28,7 +28,7 @@ export function DeviceDetailPanel({ deviceId }: DeviceDetailPanelProps) {
     return (
       <>
         <CardHeader>
-          <CardTitle className="text-sm">Device detail</CardTitle>
+          <CardTitle className="text-sm">Device Detail</CardTitle>
         </CardHeader>
         <CardContent className="text-sm text-muted-foreground">
           Click a node in the graph to see its details.

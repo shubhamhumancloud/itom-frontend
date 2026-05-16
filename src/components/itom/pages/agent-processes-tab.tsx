@@ -94,7 +94,7 @@ export function AgentProcessesTab({
     return (
       <Card className="border-border/90 shadow-(--shadow-soft)">
         <CardHeader className="pb-3">
-          <CardTitle className="text-base font-semibold">Top processes</CardTitle>
+          <CardTitle className="text-base font-semibold">Top Processes</CardTitle>
         </CardHeader>
         <CardContent>
           <TableSkeleton rows={10} columns={7} />
@@ -119,7 +119,7 @@ export function AgentProcessesTab({
       <CardHeader className="flex flex-row items-center justify-between gap-4 pb-3">
         <div>
           <CardTitle className="text-base font-semibold">
-            Top processes
+            Top Processes
           </CardTitle>
           <p className="text-xs text-muted-foreground">
             Aggregated by executable name · last sampled{' '}

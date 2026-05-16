@@ -284,7 +284,7 @@ export function ScanPage() {
         <div className="flex flex-col gap-4">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Scan a network</CardTitle>
+              <CardTitle className="text-base">Scan a Network</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -454,7 +454,7 @@ export function ScanPage() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-              <CardTitle className="text-base">Recent scans</CardTitle>
+              <CardTitle className="text-base">Recent Scans</CardTitle>
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <span>
                   {(scans.data ?? []).length} job{(scans.data ?? []).length === 1 ? '' : 's'}

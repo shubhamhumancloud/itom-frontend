@@ -43,8 +43,11 @@ function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="card-title"
       className={cn(
-        // Hear DS section heading: 16px / SemiBold / 24px line-height.
-        "text-base leading-6 font-semibold tracking-tight group-data-[size=sm]/card:text-sm",
+        // Hear DS section heading: 16px / Bold / 24px line-height.
+        // Letter-spacing is normal (not tight) — the reference Hear
+        // dashboard cards use default tracking; tracking-tight made
+        // letters feel congested at this size.
+        "text-base leading-6 font-bold group-data-[size=sm]/card:text-sm",
         className
       )}
       {...props}

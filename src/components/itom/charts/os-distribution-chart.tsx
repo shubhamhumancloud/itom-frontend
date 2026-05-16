@@ -3,12 +3,18 @@
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 import type { OsDistributionEntry } from '@/lib/api';
 
+// Monochromatic blue ramp with wide lightness gaps — adjacent slices
+// were too close (blue-900 vs blue-700) so Windows / macOS / Linux
+// blended together on the donut. Jumping two-to-three Tailwind steps
+// between entries gives a visibly distinct shade per slice while
+// keeping the whole palette in the blue family.
 const PALETTE = [
-  'var(--chart-1)',
-  'var(--chart-4)',
-  'var(--chart-5)',
-  'var(--chart-3)',
-  'var(--chart-2)',
+  '#0a2472', // navy (deepest)
+  '#2563eb', // blue-600
+  '#7dd3fc', // sky-300
+  '#0ea5e9', // sky-500
+  '#1e40af', // blue-800
+  '#bae6fd', // sky-200 (lightest)
 ];
 
 const OS_LABELS: Record<string, string> = {

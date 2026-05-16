@@ -5,7 +5,6 @@ import { LoadingOverlay, useColdLoad } from '@/components/ui/loaders';
 import { useAgents, useFleetStats, useOsDistribution } from '@/hooks/use-itom';
 import { PageHeader } from '@/components/app/page-header';
 import { FleetKpiRow } from './dashboard/fleet-kpi-row';
-import { UtilizationKpiRow } from './dashboard/utilization-kpi-row';
 import { IncidentsCard } from './dashboard/incidents-card';
 import { OsDistributionCard } from './dashboard/os-distribution-card';
 import { DistributionHistogramRow } from './dashboard/distribution-histogram-row';
@@ -23,9 +22,8 @@ import { DistributionHistogramRow } from './dashboard/distribution-histogram-row
  *
  * Rows
  *   1. Fleet attention    — counts that should be zero
- *   2. Utilization posture — Avg CPU / Mem / Disk with percentiles
- *   3. Latest incidents + OS distribution
- *   4. CPU / Memory / Disk distribution histograms
+ *   2. Latest incidents + OS distribution
+ *   3. CPU / Memory / Disk distribution histograms
  */
 export function DashboardOverview() {
   const stats = useFleetStats();
@@ -63,7 +61,6 @@ export function DashboardOverview() {
 
       <div className="space-y-4">
         <FleetKpiRow stats={stats} isLoading={isLoading} />
-        <UtilizationKpiRow stats={stats} isLoading={isLoading} />
 
         <div className="grid gap-4 lg:grid-cols-3">
           <div className="lg:col-span-2">

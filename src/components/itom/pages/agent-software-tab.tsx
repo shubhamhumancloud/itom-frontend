@@ -53,7 +53,7 @@ export function AgentSoftwareTab({ agentId }: { agentId: string }) {
         <div>
           <CardTitle className="flex items-center gap-2 text-base font-semibold">
             <Package className="h-4 w-4 text-emerald-600" />
-            Installed software
+            Installed Software
           </CardTitle>
           <p className="text-xs text-muted-foreground">
             Refreshed daily from the host package manager

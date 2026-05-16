@@ -143,7 +143,11 @@ export function AgentDetailPage({ agentId }: { agentId: string }) {
               <CardHeader className="pb-3">
                 <CardTitle className="text-base font-semibold">Device Facts</CardTitle>
               </CardHeader>
-              <CardContent className="grid gap-4 text-sm md:grid-cols-2">
+              {/* Single-column list of facts: label on the left, value
+                  on the right, with a horizontal divider after each
+                  row (painted by `divide-y` on CardContent). Mirrors
+                  the Hear "Compliance & Privacy" settings layout. */}
+              <CardContent className="divide-y divide-border/60 p-0 text-sm">
                 <Field label="Hostname" value={agent?.hostname ?? '-'} />
                 <Field
                   label="Agent ID"
@@ -154,15 +158,15 @@ export function AgentDetailPage({ agentId }: { agentId: string }) {
                   }
                 />
                 <Field
-                  label="Operating system"
+                  label="Operating System"
                   value={`${agent?.os ?? '-'} · ${agent?.arch ?? '-'} · ${agent?.platform ?? '-'} ${agent?.platformVersion ?? ''}`.trim()}
                 />
                 <Field label="CPU" value={`${agent?.cpuModel ?? '-'} (${agent?.cpuCores ?? '?'} cores)`} />
-                <Field label="Total memory" value={formatBytes(agent?.totalMemoryBytes)} />
-                <Field label="Total disk" value={formatBytes(agent?.totalDiskBytes)} />
+                <Field label="Total Memory" value={formatBytes(agent?.totalMemoryBytes)} />
+                <Field label="Total Disk" value={formatBytes(agent?.totalDiskBytes)} />
                 <Field label="Kernel" value={agent?.kernelVersion ?? '-'} />
-                <Field label="Agent version" value={agent?.agentVersion ?? '-'} />
-                <Field label="Last seen" value={formatRelativeTime(agent?.lastSeenAt)} />
+                <Field label="Agent Version" value={agent?.agentVersion ?? '-'} />
+                <Field label="Last Seen" value={formatRelativeTime(agent?.lastSeenAt)} />
                 <Field label="Ethernet IPs" value={agent?.ethernetIPs?.join(', ') || '-'} />
                 <Field label="Wi-Fi IPs" value={agent?.wifiIPs?.join(', ') || '-'} />
               </CardContent>
@@ -172,7 +176,7 @@ export function AgentDetailPage({ agentId }: { agentId: string }) {
           <TabsContent value="status-events" className="!mt-0">
             <Card className="border-border/90 shadow-(--shadow-soft)">
               <CardHeader className="pb-3">
-                <CardTitle className="text-base font-semibold">Connection history</CardTitle>
+                <CardTitle className="text-base font-semibold">Connection History</CardTitle>
               </CardHeader>
               <CardContent>
                 {statusEvents.length === 0 ? (
@@ -237,14 +241,20 @@ const tabTriggerCls =
   "cursor-pointer !h-auto !flex-initial w-full justify-start gap-2 px-3 py-2 text-sm rounded-md " +
   "after:!hidden " +
   "text-foreground/70 hover:bg-muted/60 hover:!text-foreground " +
-  "data-active:!bg-muted data-active:!text-foreground " +
+  "data-active:!bg-muted data-active:!text-[#086BFF] [&[data-active]_svg]:!text-[#086BFF] " +
   "[&_svg:not([class*='size-'])]:size-4";
 
+// Each Field is one full-width row in Device Facts — label on the
+// left (highlighted, bold), value on the right (muted, right-aligned).
+// Sits inside CardContent's `divide-y`, so each row contributes its
+// own horizontal divider. Mirrors the Hear settings list pattern.
 function Field({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div>
-      <div className="text-xs uppercase tracking-wide text-muted-foreground">{label}</div>
-      <div className="mt-0.5 break-words text-foreground">{value}</div>
+    <div className="flex items-start justify-between gap-6 px-6 py-3">
+      <div className="shrink-0 text-sm font-semibold text-foreground">{label}</div>
+      <div className="break-words text-right text-sm text-muted-foreground">
+        {value}
+      </div>
     </div>
   );
 }

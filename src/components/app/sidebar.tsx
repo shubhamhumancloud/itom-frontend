@@ -10,6 +10,7 @@ import {
   Radar,
   Server,
   Settings,
+  User,
 } from 'lucide-react';
 import { AcaiOpsLogo } from '@/components/app/acai-ops-logo';
 import { cn } from '@/lib/utils';
@@ -35,7 +36,10 @@ const groups: NavGroup[] = [
   },
   {
     label: 'Account',
-    items: [{ href: '/settings', label: 'Settings', icon: Settings }],
+    items: [
+      { href: '/profile', label: 'Profile', icon: User },
+      { href: '/settings', label: 'Settings', icon: Settings },
+    ],
   },
 ];
 
@@ -85,7 +89,7 @@ export function Sidebar({ email }: { email: string }) {
                       'group flex h-10 items-center gap-3 rounded-sm px-3 text-[15px] transition-colors',
                       active
                         ? 'bg-sidebar-primary font-semibold text-sidebar-primary-foreground'
-                        : 'font-medium text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
+                        : 'font-medium text-muted-foreground hover:bg-muted',
                     )}
                   >
                     <Icon
@@ -110,7 +114,7 @@ export function Sidebar({ email }: { email: string }) {
         </div>
         <button
           onClick={signOut}
-          className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+          className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted"
         >
           <LogOut className="h-4 w-4" />
           Sign out

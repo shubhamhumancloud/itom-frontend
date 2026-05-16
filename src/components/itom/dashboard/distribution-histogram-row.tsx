@@ -24,7 +24,7 @@ export function DistributionHistogramRow({
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2">
             <Cpu className="h-4 w-4 text-primary" />
-            CPU usage distribution
+            CPU Usage Distribution
           </CardTitle>
           <p className="text-xs text-muted-foreground">
             Agents bucketed by their latest CPU% sample
@@ -38,7 +38,7 @@ export function DistributionHistogramRow({
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2">
             <MemoryStick className="h-4 w-4 text-primary" />
-            Memory usage distribution
+            Memory Usage Distribution
           </CardTitle>
           <p className="text-xs text-muted-foreground">
             Agents bucketed by their latest memory% sample
@@ -52,7 +52,7 @@ export function DistributionHistogramRow({
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2">
             <HardDrive className="h-4 w-4 text-primary" />
-            Disk usage distribution
+            Disk Usage Distribution
           </CardTitle>
           <p className="text-xs text-muted-foreground">
             Agents bucketed by their highest mountpoint usage

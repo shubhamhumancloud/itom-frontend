@@ -484,7 +484,7 @@ export function NetworkOverviewPage({
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-base font-semibold">
             <Network className="h-4 w-4 text-indigo-600" />
-            Per-interface throughput
+            Per-Interface Throughput
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4 text-sm">

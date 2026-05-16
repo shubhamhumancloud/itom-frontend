@@ -2,13 +2,15 @@
 
 import {
   HeartPulse,
-  HelpCircle,
+  Network,
   ServerOff,
   Users,
 } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 import { KpiCard, type KpiTone } from '@/components/itom/kpi-card';
 import { KpiCardSkeleton } from '@/components/ui/loaders';
 import type { FleetStats } from '@/hooks/use-itom';
+import { discoveryApi } from '@/lib/api';
 
 /**
  * Row 1 — Fleet attention.
@@ -31,6 +33,16 @@ export function FleetKpiRow({
   stats: FleetStats;
   isLoading: boolean;
 }) {
+  // Discovered hosts come from a separate API (TopologyService.listHosts)
+  // — they're devices observed on the network, not necessarily agents.
+  // We count them here so the "Total Hosts" tile reflects discovery
+  // results independently of agent enrolment.
+  const hostsQ = useQuery({
+    queryKey: ['discovery', 'hosts', 'count'],
+    queryFn: () => discoveryApi.hosts({}),
+  });
+  const totalHosts = hostsQ.data?.length ?? 0;
+
   if (isLoading) {
     return (
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -42,7 +54,6 @@ export function FleetKpiRow({
   }
 
   const issueTone = (n: number): KpiTone => (n > 0 ? 'rose' : 'green');
-  const unknownTone = (n: number): KpiTone => (n > 0 ? 'orange' : 'green');
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -52,6 +63,16 @@ export function FleetKpiRow({
         icon={Users}
         tone="peach"
         descriptor={`${stats.online} online · ${stats.offline} offline`}
+        descriptorTone="muted"
+      />
+      <KpiCard
+        label="Total Hosts"
+        value={totalHosts}
+        icon={Network}
+        tone="indigo"
+        descriptor={
+          totalHosts === 0 ? 'no hosts discovered' : 'discovered on network'
+        }
         descriptorTone="muted"
       />
       <KpiCard
@@ -65,18 +86,6 @@ export function FleetKpiRow({
             : `${pct(stats.offline, stats.totalAgents)} of fleet`
         }
         descriptorTone={stats.offline > 0 ? 'danger' : 'success'}
-      />
-      <KpiCard
-        label="Unknown / Stale"
-        value={stats.unknown}
-        icon={HelpCircle}
-        tone={unknownTone(stats.unknown)}
-        descriptor={
-          stats.unknown === 0
-            ? 'no stale agents'
-            : `${pct(stats.unknown, stats.totalAgents)} of fleet`
-        }
-        descriptorTone={stats.unknown > 0 ? 'warning' : 'success'}
       />
       <KpiCard
         label="Healthy Agents"

@@ -79,7 +79,7 @@ export function AgentsTable() {
         <div className="relative max-w-md flex-1">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            className="h-10 w-full rounded-md bg-white pl-10"
+            className="h-10 w-full rounded-md bg-white pl-10 focus-visible:!border-input focus-visible:!ring-0"
             placeholder="Search by name, hostname, or ID"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
