@@ -329,7 +329,7 @@ export function SoftwareIcon({ name }: { name: string }) {
     const color = FALLBACK_COLORS[name.charCodeAt(0) % FALLBACK_COLORS.length];
     return (
       <div
-        className={`flex h-5 w-5 items-center justify-center rounded text-[10px] font-medium text-white ${color}`}
+        className={`flex h-5 w-5 shrink-0 items-center justify-center rounded text-[10px] font-medium text-white ${color}`}
       >
         {ch}
       </div>
@@ -340,7 +340,7 @@ export function SoftwareIcon({ name }: { name: string }) {
     <img
       src={sources[idx]}
       alt=""
-      className="h-5 w-5 rounded"
+      className="h-5 w-5 shrink-0 rounded"
       onError={() => setIdx(idx + 1)}
     />
   );
@@ -364,7 +364,7 @@ function buildIconSources(name: string): string[] {
 
 function MicrosoftLogo() {
   return (
-    <svg viewBox="0 0 23 23" className="h-5 w-5" aria-hidden="true">
+    <svg viewBox="0 0 23 23" className="h-5 w-5 shrink-0" aria-hidden="true">
       <rect width="10" height="10" fill="#F25022" />
       <rect x="13" width="10" height="10" fill="#7FBA00" />
       <rect y="13" width="10" height="10" fill="#00A4EF" />
