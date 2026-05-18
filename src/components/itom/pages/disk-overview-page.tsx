@@ -250,7 +250,7 @@ export function DiskOverviewPage({
               </div>
 
               {diskViewMode === 'latest' ? (
-                <div className="min-w-0 overflow-hidden rounded-md border border-border/60">
+                <div className="h-[480px] min-w-0 overflow-y-auto overflow-x-hidden rounded-md border border-border/60">
                   <Table className="table-fixed">
                     <TableHeader>
                       <TableRow>
