@@ -97,8 +97,6 @@ function BatterySection({ agentId }: { agentId: string }) {
             color={
               percent < 20 && !latest.charging
                 ? 'text-red-600'
-                : percent < 40 && !latest.charging
-                ? 'text-amber-600'
                 : 'text-foreground'
             }
           />

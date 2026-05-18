@@ -1,15 +1,6 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import {
-  CartesianGrid,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,
@@ -55,7 +46,6 @@ export function DiskOverviewPage({
   const { data: disk = [], isLoading } = useAgentDisk(agentId, 1000);
   const showOverlay = useColdLoad(isLoading, disk.length > 0);
 
-  const [selectedDiskMount, setSelectedDiskMount] = useState('');
   const [diskViewMode, setDiskViewMode] = useState<'latest' | 'raw'>('latest');
 
   const diskInsights = useMemo(() => {
@@ -73,21 +63,7 @@ export function DiskOverviewPage({
             new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
         );
         const latest = sorted[sorted.length - 1];
-        return {
-          mountpoint,
-          latest,
-          history: sorted.map((d) => ({
-            timestamp: d.timestamp,
-            label: new Date(d.timestamp).toLocaleTimeString('en-US', {
-              hour: '2-digit',
-              minute: '2-digit',
-              second: '2-digit',
-            }),
-            usedPercent: Number(d.usedPercent ?? 0),
-            usedBytes: Number(d.usedBytes ?? 0),
-            totalBytes: Number(d.totalBytes ?? 0),
-          })),
-        };
+        return { mountpoint, latest };
       })
       .sort(
         (a, b) =>
@@ -119,27 +95,8 @@ export function DiskOverviewPage({
       criticalCount,
       warningCount,
       mostUtilized,
-      mountpoints: latestRows.map((row) => row.mountpoint),
     };
   }, [disk]);
-
-  useEffect(() => {
-    if (!diskInsights.mountpoints.length) {
-      setSelectedDiskMount('');
-      return;
-    }
-    if (
-      !selectedDiskMount ||
-      !diskInsights.mountpoints.includes(selectedDiskMount)
-    ) {
-      setSelectedDiskMount(diskInsights.mountpoints[0]);
-    }
-  }, [diskInsights.mountpoints, selectedDiskMount]);
-
-  const selectedDiskRow =
-    diskInsights.latestRows.find(
-      (row) => row.mountpoint === selectedDiskMount,
-    ) ?? diskInsights.latestRows[0];
 
   const DISK_PAGE_SIZE = 50;
   const rawDiskRows = useMemo(
@@ -293,160 +250,57 @@ export function DiskOverviewPage({
               </div>
 
               {diskViewMode === 'latest' ? (
-                <div className="grid gap-3 lg:grid-cols-3">
-                  <div className="min-w-0 overflow-hidden rounded-md border border-border/60 lg:col-span-2">
-                    <Table className="table-fixed">
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="w-[28%]">Mountpoint</TableHead>
-                          <TableHead className="w-[10%]">Used</TableHead>
-                          <TableHead className="w-[14%]">Capacity</TableHead>
-                          <TableHead className="w-[12%]">Free</TableHead>
-                          <TableHead className="w-[12%]">Status</TableHead>
-                          <TableHead className="w-[24%]">Last Sample</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {diskInsights.latestRows.map((row) => {
-                          const used = Number(row.latest?.usedPercent ?? 0);
-                          const usedBytes = Number(row.latest?.usedBytes ?? 0);
-                          const totalBytes = Number(
-                            row.latest?.totalBytes ?? 0,
-                          );
-                          const freeBytes = Math.max(totalBytes - usedBytes, 0);
-                          const isSelected =
-                            selectedDiskMount === row.mountpoint;
-                          return (
-                            <TableRow
-                              key={`disk-${row.mountpoint}`}
-                              className={cn(
-                                'cursor-pointer',
-                                isSelected && 'bg-muted/40',
-                              )}
-                              onClick={() =>
-                                setSelectedDiskMount(row.mountpoint)
-                              }
+                <div className="min-w-0 overflow-hidden rounded-md border border-border/60">
+                  <Table className="table-fixed">
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-[32%]">Mountpoint</TableHead>
+                        <TableHead className="w-[10%]">Used</TableHead>
+                        <TableHead className="w-[14%]">Capacity</TableHead>
+                        <TableHead className="w-[12%]">Free</TableHead>
+                        <TableHead className="w-[12%]">Status</TableHead>
+                        <TableHead className="w-[20%]">Last Sample</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {diskInsights.latestRows.map((row) => {
+                        const used = Number(row.latest?.usedPercent ?? 0);
+                        const usedBytes = Number(row.latest?.usedBytes ?? 0);
+                        const totalBytes = Number(
+                          row.latest?.totalBytes ?? 0,
+                        );
+                        const freeBytes = Math.max(totalBytes - usedBytes, 0);
+                        return (
+                          <TableRow key={`disk-${row.mountpoint}`}>
+                            <TableCell
+                              className="truncate font-medium"
+                              title={row.mountpoint}
                             >
-                              <TableCell
-                                className="truncate font-medium"
-                                title={row.mountpoint}
-                              >
-                                {row.mountpoint}
-                              </TableCell>
-                              <TableCell className="truncate tabular-nums">
-                                {formatPercent(used)}
-                              </TableCell>
-                              <TableCell className="truncate tabular-nums">
-                                {formatBytes(totalBytes)}
-                              </TableCell>
-                              <TableCell className="truncate tabular-nums">
-                                {formatBytes(freeBytes)}
-                              </TableCell>
-                              <TableCell className="truncate">
-                                {diskHealthLabel(used)}
-                              </TableCell>
-                              <TableCell
-                                className="truncate"
-                                title={formatLocalTimestamp(row.latest.timestamp)}
-                              >
-                                {formatLocalTimestamp(row.latest.timestamp)}
-                              </TableCell>
-                            </TableRow>
-                          );
-                        })}
-                      </TableBody>
-                    </Table>
-                  </div>
-
-                  <div className="rounded-md border border-border/60 p-3">
-                    <div className="mb-2 flex items-center justify-between">
-                      <p className="text-sm font-medium">Usage trend</p>
-                      <select
-                        value={selectedDiskRow?.mountpoint ?? ''}
-                        onChange={(e) =>
-                          setSelectedDiskMount(e.target.value)
-                        }
-                        className="rounded-md border border-border bg-background px-2 py-1 text-xs"
-                      >
-                        {diskInsights.mountpoints.map((mount) => (
-                          <option key={`disk-opt-${mount}`} value={mount}>
-                            {mount}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="h-64">
-                      {selectedDiskRow?.history?.length ? (
-                        <ResponsiveContainer width="100%" height="100%">
-                          <LineChart
-                            data={selectedDiskRow.history}
-                            margin={{ top: 6, right: 8, left: -22, bottom: 0 }}
-                          >
-                            <CartesianGrid
-                              stroke="var(--border)"
-                              strokeDasharray="3 3"
-                              vertical={false}
-                            />
-                            <XAxis
-                              dataKey="label"
-                              stroke="var(--muted-foreground)"
-                              fontSize={11}
-                              tickLine={false}
-                              axisLine={false}
-                              interval="preserveStartEnd"
-                              minTickGap={28}
-                            />
-                            <YAxis
-                              domain={[0, 100]}
-                              stroke="var(--muted-foreground)"
-                              fontSize={11}
-                              tickLine={false}
-                              axisLine={false}
-                              unit="%"
-                            />
-                            <Tooltip
-                              labelFormatter={(_, payload) => {
-                                const row = payload?.[0]?.payload as
-                                  | { timestamp?: string }
-                                  | undefined;
-                                return row?.timestamp
-                                  ? formatLocalTimestamp(row.timestamp)
-                                  : '';
-                              }}
-                              formatter={(value, name) => {
-                                if (name === 'Used %') {
-                                  const n =
-                                    typeof value === 'number'
-                                      ? value
-                                      : Number(value);
-                                  return [formatPercent(n), 'Used %'];
-                                }
-                                return [value, name];
-                              }}
-                              contentStyle={{
-                                background: 'var(--popover)',
-                                border: '1px solid var(--border)',
-                                borderRadius: 8,
-                                fontSize: 12,
-                              }}
-                            />
-                            <Line
-                              type="monotone"
-                              dataKey="usedPercent"
-                              name="Used %"
-                              stroke="var(--chart-5)"
-                              strokeWidth={2}
-                              dot={false}
-                            />
-                          </LineChart>
-                        </ResponsiveContainer>
-                      ) : (
-                        <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
-                          No trend data for selected mountpoint.
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                              {row.mountpoint}
+                            </TableCell>
+                            <TableCell className="truncate tabular-nums">
+                              {formatPercent(used)}
+                            </TableCell>
+                            <TableCell className="truncate tabular-nums">
+                              {formatBytes(totalBytes)}
+                            </TableCell>
+                            <TableCell className="truncate tabular-nums">
+                              {formatBytes(freeBytes)}
+                            </TableCell>
+                            <TableCell className="truncate">
+                              {diskHealthLabel(used)}
+                            </TableCell>
+                            <TableCell
+                              className="truncate"
+                              title={formatLocalTimestamp(row.latest.timestamp)}
+                            >
+                              {formatLocalTimestamp(row.latest.timestamp)}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
                 </div>
               ) : (
                 <div

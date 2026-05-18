@@ -27,7 +27,6 @@ import {
 } from '@/hooks/use-itom';
 import { formatRelativeTime } from '@/lib/format';
 import { cn } from '@/lib/utils';
-import type { IncidentEventRow } from '@/lib/api';
 
 /**
  * Incident detail — header with lifecycle actions, the alerts correlated
@@ -114,59 +113,61 @@ export function IncidentDetailPage({ incidentId }: { incidentId: string }) {
           <Card className="border-border/90 shadow-(--shadow-soft)">
             <CardHeader className="pb-3">
               <CardTitle className="text-base font-semibold">
-                Correlated alerts
+                Correlated Alerts
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-0">
+            <CardContent>
               {alerts.length === 0 ? (
-                <p className="px-6 pb-4 text-sm text-muted-foreground">
+                <p className="pb-4 text-sm text-muted-foreground">
                   No alerts attached.
                 </p>
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-[12%]">Severity</TableHead>
-                      <TableHead className="w-[40%]">Alert</TableHead>
-                      <TableHead className="w-[14%]">State</TableHead>
-                      <TableHead className="w-[14%] text-right">Value</TableHead>
-                      <TableHead className="w-[20%]">First fired</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {alerts.map((a) => (
-                      <TableRow key={a.id}>
-                        <TableCell>
-                          <AlertSeverityBadge severity={a.severity} />
-                        </TableCell>
-                        <TableCell
-                          className="truncate font-medium text-foreground"
-                          title={a.message}
-                        >
-                          {a.message}
-                        </TableCell>
-                        <TableCell>
-                          <span
-                            className={cn(
-                              'text-xs font-medium capitalize',
-                              a.state === 'firing'
-                                ? 'text-rose-600'
-                                : 'text-emerald-600',
-                            )}
-                          >
-                            {a.state}
-                          </span>
-                        </TableCell>
-                        <TableCell className="text-right tabular-nums text-foreground">
-                          {formatMetricValue(a.metric, a.metricValue)}
-                        </TableCell>
-                        <TableCell className="text-muted-foreground">
-                          {formatRelativeTime(a.firstFiredAt)}
-                        </TableCell>
+                <div className="h-[calc(100vh-420px)] min-h-[280px] overflow-y-auto overflow-x-hidden rounded-md border border-border/60">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-[12%]">Severity</TableHead>
+                        <TableHead className="w-[40%]">Alert</TableHead>
+                        <TableHead className="w-[14%]">State</TableHead>
+                        <TableHead className="w-[14%] text-right">Value</TableHead>
+                        <TableHead className="w-[20%]">First fired</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {alerts.map((a) => (
+                        <TableRow key={a.id}>
+                          <TableCell>
+                            <AlertSeverityBadge severity={a.severity} />
+                          </TableCell>
+                          <TableCell
+                            className="truncate font-medium text-foreground"
+                            title={a.message}
+                          >
+                            {a.message}
+                          </TableCell>
+                          <TableCell>
+                            <span
+                              className={cn(
+                                'text-xs font-medium capitalize',
+                                a.state === 'firing'
+                                  ? 'text-rose-600'
+                                  : 'text-emerald-600',
+                              )}
+                            >
+                              {a.state}
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-right tabular-nums text-foreground">
+                            {formatMetricValue(a.metric, a.metricValue)}
+                          </TableCell>
+                          <TableCell className="text-muted-foreground">
+                            {formatRelativeTime(a.firstFiredAt)}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               )}
             </CardContent>
           </Card>
@@ -177,15 +178,49 @@ export function IncidentDetailPage({ incidentId }: { incidentId: string }) {
               <CardTitle className="text-base font-semibold">Timeline</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <ol className="space-y-0">
-                {events.map((ev, i) => (
-                  <TimelineRow
-                    key={ev.id}
-                    event={ev}
-                    last={i === events.length - 1}
-                  />
-                ))}
-              </ol>
+              <div className="max-h-[280px] overflow-y-auto overflow-x-hidden rounded-md border border-border/60">
+                <Table className="table-fixed">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[20%]">Event</TableHead>
+                      <TableHead className="w-[50%]">Message</TableHead>
+                      <TableHead className="w-[15%]">Actor</TableHead>
+                      <TableHead className="w-[15%]">Time</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {events.map((ev) => (
+                      <TableRow key={ev.id}>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <span
+                              className={cn(
+                                'h-2.5 w-2.5 shrink-0 rounded-full',
+                                EVENT_TONE[ev.type] ?? 'bg-slate-400',
+                              )}
+                            />
+                            <span className="text-xs font-medium capitalize text-foreground">
+                              {(EVENT_LABELS[ev.type] ?? ev.type).replace(/_/g, ' ')}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell
+                          className="truncate text-foreground"
+                          title={ev.message}
+                        >
+                          {ev.message}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {ev.actor ?? 'system'}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {formatRelativeTime(ev.occurredAt)}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
 
               {/* Comment box */}
               <div className="flex flex-col gap-2 border-t border-border/60 pt-4">
@@ -236,31 +271,12 @@ const EVENT_TONE: Record<string, string> = {
   comment: 'bg-slate-400',
 };
 
-function TimelineRow({
-  event,
-  last,
-}: {
-  event: IncidentEventRow;
-  last: boolean;
-}) {
-  return (
-    <li className="flex gap-3">
-      {/* Dot + connector rail */}
-      <div className="flex flex-col items-center">
-        <span
-          className={cn(
-            'mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full',
-            EVENT_TONE[event.type] ?? 'bg-slate-400',
-          )}
-        />
-        {!last && <span className="w-px flex-1 bg-border" />}
-      </div>
-      <div className={cn('min-w-0 flex-1', last ? 'pb-0' : 'pb-4')}>
-        <p className="text-sm text-foreground">{event.message}</p>
-        <p className="text-[11px] text-muted-foreground">
-          {event.actor ?? 'system'} · {formatRelativeTime(event.occurredAt)}
-        </p>
-      </div>
-    </li>
-  );
-}
+const EVENT_LABELS: Record<string, string> = {
+  opened: 'Opened',
+  alert_added: 'Alert added',
+  alert_resolved: 'Alert resolved',
+  severity_changed: 'Severity changed',
+  acknowledged: 'Acknowledged',
+  resolved: 'Resolved',
+  comment: 'Comment',
+};

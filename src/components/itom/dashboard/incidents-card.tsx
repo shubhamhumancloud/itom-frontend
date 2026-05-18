@@ -39,7 +39,7 @@ export function IncidentsCard() {
     <Card>
       <CardHeader className="flex flex-row items-start justify-between gap-2 pb-2">
         <div>
-          <CardTitle>Latest incidents</CardTitle>
+          <CardTitle>Latest Incidents</CardTitle>
           <p className="text-xs text-muted-foreground">
             Open incidents across the fleet, most recent first
           </p>
@@ -47,9 +47,9 @@ export function IncidentsCard() {
         {incidents.length > 0 ? (
           <Link
             href="/alerts"
-            className="shrink-0 text-xs font-medium text-primary hover:underline"
+            className="shrink-0 text-sm font-semibold text-primary hover:underline"
           >
-            View all →
+            View All →
           </Link>
         ) : null}
       </CardHeader>
@@ -61,15 +61,15 @@ export function IncidentsCard() {
             No open incidents — every monitored threshold is within range.
           </div>
         ) : (
-          <div className={`${BODY_HEIGHT} overflow-y-auto`}>
-            <Table>
-              <TableHeader>
+          <div className={`${BODY_HEIGHT} overflow-y-auto overflow-x-hidden`}>
+            <Table className="table-fixed">
+              <TableHeader className="!bg-card [&_th]:!border-b-0">
                 <TableRow>
-                  <TableHead>Severity</TableHead>
+                  <TableHead className="w-[110px]">Severity</TableHead>
                   <TableHead>Incident</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Opened</TableHead>
-                  <TableHead className="text-right">Status</TableHead>
+                  <TableHead className="w-[140px]">Category</TableHead>
+                  <TableHead className="w-[120px]">Opened</TableHead>
+                  <TableHead className="w-[130px] text-right">Status</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -78,16 +78,16 @@ export function IncidentsCard() {
                     <TableCell>
                       <AlertSeverityBadge severity={inc.severity} />
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="truncate">
                       <Link
                         href={`/alerts/${inc.id}`}
-                        className="font-medium text-foreground hover:text-primary"
+                        className="block truncate font-medium text-foreground"
                         title={inc.title}
                       >
                         {inc.title}
                       </Link>
                     </TableCell>
-                    <TableCell className="capitalize text-muted-foreground">
+                    <TableCell className="truncate capitalize text-muted-foreground">
                       {inc.category}
                     </TableCell>
                     <TableCell className="text-muted-foreground">

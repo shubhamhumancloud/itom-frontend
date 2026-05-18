@@ -50,6 +50,7 @@ import { formatRelativeTime, truncateMiddle } from '@/lib/format';
  */
 export function IncidentsPage() {
   const router = useRouter();
+  const [tab, setTab] = useState<'incidents' | 'alerts' | 'rules'>('incidents');
   const [statusFilter, setStatusFilter] = useState<
     'all' | 'open' | 'acknowledged' | 'resolved'
   >('all');
@@ -101,16 +102,33 @@ export function IncidentsPage() {
         />
       </div>
 
-      <Tabs defaultValue="incidents" className="w-full">
-        <TabsList>
-          <TabsTrigger value="incidents">Incidents</TabsTrigger>
-          <TabsTrigger value="alerts">Active alerts</TabsTrigger>
-          <TabsTrigger value="rules">Rules</TabsTrigger>
-        </TabsList>
-
-        {/* ───────────── Incidents tab ───────────── */}
-        <TabsContent value="incidents" className="mt-4 space-y-3">
-          <div className="flex justify-end">
+      <Tabs
+        value={tab}
+        onValueChange={(v) => setTab(v as typeof tab)}
+        className="w-full"
+      >
+        <div className="flex items-center justify-between gap-3">
+          <TabsList className="!h-10">
+            <TabsTrigger
+              value="incidents"
+              className="!text-foreground hover:!text-foreground data-active:!text-primary-foreground data-active:hover:!text-primary-foreground"
+            >
+              Incidents
+            </TabsTrigger>
+            <TabsTrigger
+              value="alerts"
+              className="!text-foreground hover:!text-foreground data-active:!text-primary-foreground data-active:hover:!text-primary-foreground"
+            >
+              Active alerts
+            </TabsTrigger>
+            <TabsTrigger
+              value="rules"
+              className="!text-foreground hover:!text-foreground data-active:!text-primary-foreground data-active:hover:!text-primary-foreground"
+            >
+              Rules
+            </TabsTrigger>
+          </TabsList>
+          {tab === 'incidents' && (
             <Select
               value={statusFilter}
               onValueChange={(v) => setStatusFilter(v as typeof statusFilter)}
@@ -134,8 +152,11 @@ export function IncidentsPage() {
                 <SelectItem value="resolved">Resolved</SelectItem>
               </SelectContent>
             </Select>
-          </div>
+          )}
+        </div>
 
+        {/* ───────────── Incidents tab ───────────── */}
+        <TabsContent value="incidents" className="mt-4">
           {incidentsQ.isLoading ? (
             <TableSkeleton rows={6} columns={7} />
           ) : incidents.length === 0 ? (
