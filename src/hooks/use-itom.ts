@@ -1,8 +1,14 @@
 'use client';
 
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import {
   agentsApi,
+  alertsApi,
   dashboardApi,
   diskApi,
   metricsApi,
@@ -315,6 +321,95 @@ export function useAgentGpuHistory(agentId: string, limit = 120) {
     enabled: !!agentId,
     refetchInterval: 30_000,
   });
+}
+
+// ----- Alerts & Incidents -----
+
+export function useIncidents(status?: string) {
+  return useQuery({
+    queryKey: ['incidents', status ?? 'all'],
+    queryFn: () => alertsApi.listIncidents(status),
+    refetchInterval: 20_000,
+  });
+}
+
+export function useIncident(id: string) {
+  return useQuery({
+    queryKey: ['incident', id],
+    queryFn: () => alertsApi.getIncident(id),
+    enabled: !!id,
+    refetchInterval: 20_000,
+  });
+}
+
+export function useAlerts(params: { state?: string; severity?: string } = {}) {
+  return useQuery({
+    queryKey: ['alerts', params.state ?? 'all', params.severity ?? 'all'],
+    queryFn: () => alertsApi.listAlerts(params),
+    refetchInterval: 20_000,
+  });
+}
+
+export function useAlertsSummary() {
+  return useQuery({
+    queryKey: ['alerts', 'summary'],
+    queryFn: alertsApi.summary,
+    refetchInterval: 20_000,
+  });
+}
+
+export function useAlertRules() {
+  return useQuery({
+    queryKey: ['alert-rules'],
+    queryFn: alertsApi.listRules,
+  });
+}
+
+/** Edit / reset alert rule mutations — refresh the rule list on success. */
+export function useAlertRuleActions() {
+  const qc = useQueryClient();
+  const invalidate = () =>
+    qc.invalidateQueries({ queryKey: ['alert-rules'] });
+  const update = useMutation({
+    mutationFn: (vars: { id: string; patch: import('@/lib/api').AlertRulePatch }) =>
+      alertsApi.updateRule(vars.id, vars.patch),
+    onSuccess: invalidate,
+  });
+  const reset = useMutation({
+    mutationFn: (id: string) => alertsApi.resetRule(id),
+    onSuccess: invalidate,
+  });
+  return { update, reset };
+}
+
+export function useIncidentComment() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (vars: { id: string; message: string }) =>
+      alertsApi.commentIncident(vars.id, vars.message),
+    onSuccess: (_d, vars) => {
+      qc.invalidateQueries({ queryKey: ['incident', vars.id] });
+    },
+  });
+}
+
+/** Acknowledge / resolve mutations — invalidate the incident lists on success. */
+export function useIncidentActions() {
+  const qc = useQueryClient();
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ['incidents'] });
+    qc.invalidateQueries({ queryKey: ['incident'] });
+    qc.invalidateQueries({ queryKey: ['alerts'] });
+  };
+  const acknowledge = useMutation({
+    mutationFn: (id: string) => alertsApi.acknowledgeIncident(id),
+    onSuccess: invalidate,
+  });
+  const resolve = useMutation({
+    mutationFn: (id: string) => alertsApi.resolveIncident(id),
+    onSuccess: invalidate,
+  });
+  return { acknowledge, resolve };
 }
 
 export function useAgentSoftware(agentId: string, search: string) {

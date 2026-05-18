@@ -10,56 +10,44 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { StatusBadge } from '@/components/itom/status-badge';
-import { agentLabel, formatRelativeTime } from '@/lib/format';
-
-type Incident = {
-  agentId: string;
-  hostname?: string | null;
-  os: string;
-  arch: string;
-  status: string;
-  statusChangedAt: string;
-};
+import {
+  AlertSeverityBadge,
+  IncidentStatusBadge,
+} from '@/components/itom/alert-badges';
+import { useIncidents } from '@/hooks/use-itom';
+import { formatRelativeTime } from '@/lib/format';
 
 /**
- * Fixed body height for the incidents card so it never grows/shrinks
- * with the row count — keeps the dashboard grid row stable whether
- * there are 0 or 10 incidents. Holds the sticky header + ~4 rows;
- * any overflow scrolls inside this box. Sized so the card sits close
- * to the OS-distribution donut beside it, leaving no dead space.
+ * Fixed body height so the card never grows/shrinks with the row count —
+ * keeps the dashboard grid row stable whether there are 0 or 10 incidents.
+ * Holds the sticky header + ~4 rows; overflow scrolls inside this box.
  */
 const BODY_HEIGHT = 'h-[232px]';
 
 /**
- * "Latest incidents" card — bounded to the 10 most-recent non-online
- * agents so the table stays scannable no matter how many devices are
- * in the fleet. Mirrors the Hear "Recent Cases" card layout: title
- * + helper text on the left, right-aligned "View all →" deep link
- * to the full agents page.
- *
- * The body area is a fixed-height scroll container: the card keeps a
- * constant height regardless of how many incidents are present, and
- * the table's sticky header stays pinned while rows scroll under it.
+ * "Latest incidents" dashboard card — the 10 most-recent non-resolved
+ * incidents raised by the alert evaluator. Self-fetches via `useIncidents`
+ * (no props) and deep-links each row to its incident detail page.
  */
-export function IncidentsCard({
-  incidents,
-}: {
-  incidents: Incident[];
-}) {
+export function IncidentsCard() {
+  const { data = [] } = useIncidents();
+  const incidents = data
+    .filter((i) => i.status !== 'resolved')
+    .slice(0, 10);
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-start justify-between gap-2 pb-2">
         <div>
-          <CardTitle>Latest Incidents</CardTitle>
+          <CardTitle>Latest incidents</CardTitle>
           <p className="text-xs text-muted-foreground">
-            Agents currently in a non-online state, most recent change first
+            Open incidents across the fleet, most recent first
           </p>
         </div>
         {incidents.length > 0 ? (
           <Link
-            href="/agents"
-            className="shrink-0 text-sm font-semibold text-primary hover:underline"
+            href="/alerts"
+            className="shrink-0 text-xs font-medium text-primary hover:underline"
           >
             View all →
           </Link>
@@ -70,45 +58,43 @@ export function IncidentsCard({
           <div
             className={`flex ${BODY_HEIGHT} items-center justify-center rounded-md border border-dashed border-border bg-muted/30 text-sm text-muted-foreground`}
           >
-            No active incidents — every agent is online.
+            No open incidents — every monitored threshold is within range.
           </div>
         ) : (
           <div className={`${BODY_HEIGHT} overflow-y-auto`}>
             <Table>
-              <TableHeader className="!bg-card [&_th]:!border-b-0">
+              <TableHeader>
                 <TableRow>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Agent</TableHead>
-                  <TableHead>OS / Arch</TableHead>
-                  <TableHead>Since</TableHead>
+                  <TableHead>Severity</TableHead>
+                  <TableHead>Incident</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Opened</TableHead>
                   <TableHead className="text-right">Status</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {incidents.map((a) => (
-                  <TableRow key={`incident-${a.agentId}`}>
-                    <TableCell className="font-medium">
-                      {a.status === 'offline'
-                        ? 'Connection lost'
-                        : 'Awaiting connection'}
+                {incidents.map((inc) => (
+                  <TableRow key={inc.id}>
+                    <TableCell>
+                      <AlertSeverityBadge severity={inc.severity} />
                     </TableCell>
                     <TableCell>
                       <Link
-                        href={`/agents/${a.agentId}`}
+                        href={`/alerts/${inc.id}`}
                         className="font-medium text-foreground hover:text-primary"
-                        title={a.hostname ?? ''}
+                        title={inc.title}
                       >
-                        {agentLabel(a.os, a.agentId)}
+                        {inc.title}
                       </Link>
                     </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {a.os} · {a.arch}
+                    <TableCell className="capitalize text-muted-foreground">
+                      {inc.category}
                     </TableCell>
                     <TableCell className="text-muted-foreground">
-                      {formatRelativeTime(a.statusChangedAt)}
+                      {formatRelativeTime(inc.openedAt)}
                     </TableCell>
                     <TableCell className="text-right">
-                      <StatusBadge status={a.status} />
+                      <IncidentStatusBadge status={inc.status} />
                     </TableCell>
                   </TableRow>
                 ))}

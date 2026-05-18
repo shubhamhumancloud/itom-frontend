@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
+  BellRing,
   GitBranch,
   LayoutDashboard,
   ListChecks,
@@ -23,6 +24,7 @@ const groups: NavGroup[] = [
     items: [
       { href: '/', label: 'Dashboard', icon: LayoutDashboard },
       { href: '/agents', label: 'Agents', icon: Server },
+      { href: '/alerts', label: 'Alerts & Incidents', icon: BellRing },
     ],
   },
   {
