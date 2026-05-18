@@ -197,7 +197,7 @@ export function AgentPerformanceTab({ agentId }: { agentId: string }) {
               detail pane so the chart claims the full card width below. */}
           <div className="flex w-full shrink-0 flex-col border-b">
             <div className="border-b px-4 py-3">
-              <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <p className="text-base font-semibold text-foreground">
                 Resources
               </p>
             </div>

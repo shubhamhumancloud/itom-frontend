@@ -6,7 +6,6 @@ import {
   GitBranch,
   LayoutDashboard,
   ListChecks,
-  LogOut,
   Radar,
   Server,
   Settings,
@@ -108,16 +107,34 @@ export function Sidebar({ email }: { email: string }) {
         ))}
       </nav>
 
-      <div className="border-t border-sidebar-border px-4 py-4">
-        <div className="mb-3 truncate px-2 text-xs text-muted-foreground" title={email}>
-          {email}
-        </div>
+      {/* Logout pinned to the bottom of the sidebar — styled as a nav
+          item (h-10, gap-3, text-[15px]) so it reads as one more tab,
+          matching the reference. Thin top divider sets it apart from
+          the scrolling nav above. */}
+      <div className="border-t border-sidebar-border px-3 py-3">
         <button
           onClick={signOut}
-          className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted"
+          title={email}
+          className="group flex h-10 w-full items-center gap-3 rounded-sm px-3 text-[15px] font-medium text-muted-foreground transition-colors hover:bg-muted"
         >
-          <LogOut className="h-4 w-4" />
-          Sign out
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.5}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="shrink-0 text-muted-foreground"
+            aria-hidden="true"
+          >
+            <path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" />
+            <path d="M9 12h12l-3 -3" />
+            <path d="M18 15l3 -3" />
+          </svg>
+          <span>Logout</span>
         </button>
       </div>
     </aside>
