@@ -1,8 +1,7 @@
 'use client';
 
-import { useMemo } from 'react';
 import { LoadingOverlay, useColdLoad } from '@/components/ui/loaders';
-import { useAgents, useFleetStats, useOsDistribution } from '@/hooks/use-itom';
+import { useFleetStats, useOsDistribution } from '@/hooks/use-itom';
 import { PageHeader } from '@/components/app/page-header';
 import { FleetKpiRow } from './dashboard/fleet-kpi-row';
 import { IncidentsCard } from './dashboard/incidents-card';
@@ -28,27 +27,9 @@ import { DistributionHistogramRow } from './dashboard/distribution-histogram-row
 export function DashboardOverview() {
   const stats = useFleetStats();
   const osQ = useOsDistribution();
-  const agentsQ = useAgents();
 
   const isLoading = stats.isLoading;
   const showOverlay = useColdLoad(isLoading, stats.totalAgents > 0);
-
-  // Latest-incidents feed: every agent currently in a non-online state,
-  // sorted by most-recent status change. Bounded to 10 rows so the table
-  // stays scannable regardless of fleet size.
-  const incidents = useMemo(
-    () =>
-      (agentsQ.data ?? [])
-        .filter((a) => a.status !== 'online')
-        .slice()
-        .sort(
-          (a, b) =>
-            new Date(b.statusChangedAt).getTime() -
-            new Date(a.statusChangedAt).getTime(),
-        )
-        .slice(0, 10),
-    [agentsQ.data],
-  );
 
   return (
     <div className="space-y-6">
@@ -64,7 +45,7 @@ export function DashboardOverview() {
 
         <div className="grid gap-4 lg:grid-cols-3">
           <div className="lg:col-span-2">
-            <IncidentsCard incidents={incidents} />
+            <IncidentsCard />
           </div>
           <OsDistributionCard data={osQ.data ?? []} />
         </div>

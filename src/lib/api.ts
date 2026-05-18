@@ -568,3 +568,142 @@ export const observabilityApi = {
 export const installInfoApi = {
   get: () => apiFetch<{ itomServerUrl: string; unixCurl: string; windowsPowerShell: string }>('/v1/install-info'),
 };
+
+// ----- Alerts & Incidents -----
+
+export type AlertSeverity = 'warning' | 'critical';
+export type AlertState = 'firing' | 'resolved';
+export type IncidentStatus = 'open' | 'acknowledged' | 'resolved';
+export type IncidentCategory =
+  | 'compute'
+  | 'storage'
+  | 'thermal'
+  | 'power'
+  | 'availability'
+  | 'process';
+
+export type AlertRow = {
+  id: string;
+  tenantId: string | null;
+  ruleId: string;
+  ruleName: string;
+  metric: string;
+  category: IncidentCategory;
+  agentId: string;
+  scopeKey: string;
+  severity: AlertSeverity;
+  state: AlertState;
+  metricValue: number;
+  threshold: number | null;
+  message: string;
+  firstFiredAt: string;
+  lastEvaluatedAt: string;
+  resolvedAt: string | null;
+  incidentId: string | null;
+  createdAt: string;
+};
+
+export type IncidentRow = {
+  id: string;
+  tenantId: string | null;
+  agentId: string;
+  category: IncidentCategory;
+  title: string;
+  severity: AlertSeverity;
+  status: IncidentStatus;
+  alertCount: number;
+  firingAlertCount: number;
+  openedAt: string;
+  acknowledgedAt: string | null;
+  acknowledgedBy: string | null;
+  resolvedAt: string | null;
+  resolvedBy: string | null;
+};
+
+export type IncidentEventRow = {
+  id: string;
+  incidentId: string;
+  type: string;
+  message: string;
+  actor: string | null;
+  occurredAt: string;
+};
+
+export type IncidentDetail = {
+  incident: IncidentRow;
+  alerts: AlertRow[];
+  events: IncidentEventRow[];
+  firingAlertCount: number;
+  readyToClose: boolean;
+};
+
+export type AlertRuleRow = {
+  id: string;
+  tenantId: string | null;
+  key: string | null;
+  name: string;
+  metric: string;
+  category: IncidentCategory;
+  comparator: 'gte' | 'lt';
+  warningThreshold: number | null;
+  criticalThreshold: number | null;
+  recoveryThreshold: number | null;
+  forSeconds: number;
+  enabled: boolean;
+  /** 'tenant' = a tenant-specific override; 'global' = the shared default. */
+  scope: 'global' | 'tenant';
+};
+
+export type AlertRulePatch = {
+  warningThreshold?: number | null;
+  criticalThreshold?: number | null;
+  recoveryThreshold?: number | null;
+  forSeconds?: number;
+  enabled?: boolean;
+};
+
+export type AlertsSummary = {
+  openIncidents: number;
+  criticalIncidents: number;
+  acknowledgedIncidents: number;
+  firingAlerts: number;
+};
+
+export const alertsApi = {
+  listAlerts: (params: { state?: string; severity?: string; agentId?: string } = {}) => {
+    const q = new URLSearchParams();
+    if (params.state) q.set('state', params.state);
+    if (params.severity) q.set('severity', params.severity);
+    if (params.agentId) q.set('agentId', params.agentId);
+    const qs = q.toString();
+    return apiFetch<AlertRow[]>(`/v1/alerts${qs ? `?${qs}` : ''}`);
+  },
+  summary: () => apiFetch<AlertsSummary>('/v1/alerts/summary'),
+  listRules: () => apiFetch<AlertRuleRow[]>('/v1/alert-rules'),
+  updateRule: (id: string, patch: AlertRulePatch) =>
+    apiFetch<AlertRuleRow>(`/v1/alert-rules/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(patch),
+    }),
+  resetRule: (id: string) =>
+    apiFetch<{ reverted: boolean }>(`/v1/alert-rules/${id}/reset`, {
+      method: 'POST',
+    }),
+  listIncidents: (status?: string) =>
+    apiFetch<IncidentRow[]>(
+      `/v1/incidents${status ? `?status=${encodeURIComponent(status)}` : ''}`,
+    ),
+  getIncident: (id: string) =>
+    apiFetch<IncidentDetail | null>(`/v1/incidents/${id}`),
+  acknowledgeIncident: (id: string) =>
+    apiFetch<IncidentDetail>(`/v1/incidents/${id}/acknowledge`, {
+      method: 'POST',
+    }),
+  resolveIncident: (id: string) =>
+    apiFetch<IncidentDetail>(`/v1/incidents/${id}/resolve`, { method: 'POST' }),
+  commentIncident: (id: string, message: string) =>
+    apiFetch<IncidentDetail>(`/v1/incidents/${id}/comment`, {
+      method: 'POST',
+      body: JSON.stringify({ message }),
+    }),
+};
