@@ -35,18 +35,16 @@ import {
 } from '@/components/itom/alert-badges';
 import { IncidentRulesTab } from '@/components/itom/pages/incident-rules-tab';
 import {
-  useAlerts,
   useAlertsSummary,
   useIncidentActions,
   useIncidents,
 } from '@/hooks/use-itom';
-import { formatRelativeTime, truncateMiddle } from '@/lib/format';
+import { formatRelativeTime } from '@/lib/format';
 
 /**
  * Alerts & Incidents — the operator's view of everything the threshold
- * evaluator has flagged. Three tabs: tracked Incidents (correlated, with
- * ack/resolve actions), the raw Active Alerts feed, and the threshold
- * Rules a tenant can tune.
+ * evaluator has flagged. Two tabs: tracked Incidents (correlated, with
+ * ack/resolve actions) and the threshold Rules a tenant can tune.
  */
 export function IncidentsPage() {
   const router = useRouter();
@@ -56,12 +54,10 @@ export function IncidentsPage() {
   const incidentsQ = useIncidents(
     statusFilter === 'all' ? undefined : statusFilter,
   );
-  const alertsQ = useAlerts({ state: 'firing' });
   const summaryQ = useAlertsSummary();
   const { acknowledge, resolve } = useIncidentActions();
 
   const incidents = incidentsQ.data ?? [];
-  const alerts = alertsQ.data ?? [];
   const summary = summaryQ.data;
   const showOverlay = useColdLoad(incidentsQ.isLoading, incidents.length > 0);
 
@@ -104,7 +100,6 @@ export function IncidentsPage() {
       <Tabs defaultValue="incidents" className="w-full">
         <TabsList>
           <TabsTrigger value="incidents">Incidents</TabsTrigger>
-          <TabsTrigger value="alerts">Active alerts</TabsTrigger>
           <TabsTrigger value="rules">Rules</TabsTrigger>
         </TabsList>
 
@@ -226,66 +221,6 @@ export function IncidentsPage() {
                           </TableRow>
                         );
                       })}
-                    </TableBody>
-                  </Table>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-        </TabsContent>
-
-        {/* ───────────── Active alerts tab ───────────── */}
-        <TabsContent value="alerts" className="mt-4">
-          {alertsQ.isLoading ? (
-            <TableSkeleton rows={6} columns={6} />
-          ) : alerts.length === 0 ? (
-            <EmptyState message="No firing alerts right now." />
-          ) : (
-            <Card className="!p-0">
-              <CardContent className="!p-0">
-                <div className="max-h-[calc(100vh-320px)] min-h-[320px] overflow-y-auto">
-                  <Table className="table-fixed">
-                    <TableHeader className="!bg-card [&_th]:!border-b-0">
-                      <TableRow>
-                        <TableHead className="w-[10%]">Severity</TableHead>
-                        <TableHead className="w-[38%]">Alert</TableHead>
-                        <TableHead className="w-[18%]">Agent</TableHead>
-                        <TableHead className="w-[12%] text-right">Value</TableHead>
-                        <TableHead className="w-[12%] text-right">Threshold</TableHead>
-                        <TableHead className="w-[10%]">Since</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {alerts.map((a) => (
-                        <TableRow key={a.id}>
-                          <TableCell>
-                            <AlertSeverityBadge severity={a.severity} />
-                          </TableCell>
-                          <TableCell
-                            className="truncate font-medium text-foreground"
-                            title={a.message}
-                          >
-                            {a.message}
-                          </TableCell>
-                          <TableCell
-                            className="truncate font-mono text-[11px] text-muted-foreground"
-                            title={a.agentId}
-                          >
-                            {truncateMiddle(a.agentId)}
-                          </TableCell>
-                          <TableCell className="text-right tabular-nums text-foreground">
-                            {formatMetricValue(a.metric, a.metricValue)}
-                          </TableCell>
-                          <TableCell className="text-right tabular-nums text-muted-foreground">
-                            {a.threshold != null
-                              ? formatMetricValue(a.metric, a.threshold)
-                              : '—'}
-                          </TableCell>
-                          <TableCell className="truncate text-muted-foreground">
-                            {formatRelativeTime(a.firstFiredAt)}
-                          </TableCell>
-                        </TableRow>
-                      ))}
                     </TableBody>
                   </Table>
                 </div>
